@@ -215,8 +215,7 @@ pacstrap "${MNT}"  base base-devel linux linux-headers linux-firmware grub efibo
 
 echo 'Copy chroot-zfs-script to /mnt...'
 
-cp ~/chroot-zfs-script.sh /mnt/root
-
+cp ./chroot-zfs-script.sh /mnt/root
 
 echo 'Run chroot-zfs-script...'
 
