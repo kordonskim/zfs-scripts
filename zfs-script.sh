@@ -5,6 +5,7 @@ curl -s https://raw.githubusercontent.com/eoli3n/archiso-zfs/master/init | bash
 
 # find /dev/disk/by-id/
 
+# mount -o remount,size=1G /run/archiso/cowspace    
 # wipefs -a /dev/disk/by-id/ata-Hitachi_HDS5C3020BLE630_MCE7215P035WTN
 
 echo 'Setting variables...'
