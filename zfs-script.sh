@@ -10,7 +10,7 @@ curl -s https://raw.githubusercontent.com/eoli3n/archiso-zfs/master/init | bash
 
 echo 'Setting variables...'
 
-DISK='/dev/sda'
+DISK='/dev/disk/by-id/ata-Hitachi_HDS5C3020BLE630_MCE7215P035WTN'
 MNT=/mnt
 SWAPSIZE=16
 RESERVE=1
