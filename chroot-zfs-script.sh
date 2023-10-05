@@ -38,6 +38,8 @@ pacman -S --noconfirm linux-firmware intel-ucode amd-ucode
 # Enable internet time synchronisation:
 
 systemctl enable systemd-timesyncd
+systemctl enable systemd-timesyncd
+systemctl enable sshd
 
 # Set hostname
 echo 'Set hostname...'
@@ -93,5 +95,8 @@ find "${espdir}" -maxdepth 1 -mindepth 1 -type d -print0 | xargs -t -0I '{}' sh 
 # Adding user 
 echo 'Adding user mk...'
 
- useradd -m -G root mk
- echo 'mk:1234' | chpasswd
+useradd -m -G root sudo mk
+echo 'mk:1234' | chpasswd
+echo 'root:1234' | chpasswd
+passwd root
+

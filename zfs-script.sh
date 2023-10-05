@@ -138,23 +138,6 @@ done
 mkdir -p "${MNT}"/boot/efi
 mount -t vfat -o iocharset=iso8859-1 "$(echo "${DISK}" | sed "s|^ *||"  | cut -f1 -d' '|| true)"-part1 "${MNT}"/boot/efi
 
-# # System setup
-
-# curl --fail-early --fail -L https://america.archive.pkgbuild.com/iso/2023.09.01/archlinux-bootstrap-x86_64.tar.gz -o rootfs.tar.gz
-
-# curl --fail-early --fail -L https://america.archive.pkgbuild.com/iso/2023.09.01/archlinux-bootstrap-x86_64.tar.gz.sig -o rootfs.tar.gz.sig
-
-# apk add gnupg
-# gpg --auto-key-retrieve --keyserver hkps://keyserver.ubuntu.com --verify rootfs.tar.gz.sig
-
-# ln -s "${MNT}" "${MNT}"/root.x86_64
-# tar x  -C "${MNT}" -af rootfs.tar.gz root.x86_64
-
-# # Enable community repo
-
-# sed -i '/edge/d' /etc/apk/repositories
-# sed -i -E 's/#(.*)community/\1community/' /etc/apk/repositories
-
 # Generate fstab:
 echo 'Generate fstab...'
 
@@ -173,49 +156,7 @@ genfstab -t PARTUUID "${MNT}" \
 # Pacstrap packages to MNT
 echo 'Pacstrap packages to MNT...'
 
-pacstrap "${MNT}"  base base-devel linux linux-headers linux-firmware grub efibootmgr nano micro openssh
-
-# # Add archzfs repo to pacman config
-
-# pacman-key --init
-# pacman-key --refresh-keys
-# pacman-key --populate
-
-# curl --fail-early --fail -L https://archzfs.com/archzfs.gpg | pacman-key -a - --gpgdir /etc/pacman.d/gnupg
-
-# pacman-key --lsign-key --gpgdir /etc/pacman.d/gnupg DDF7DB817396A49B2A2723F7403BD972F75D9D76
-
-# tee -a /etc/pacman.d/mirrorlist-archzfs <<- 'EOF'
-# ## See https://github.com/archzfs/archzfs/wiki
-# ## France
-# #,Server = https://archzfs.com/$repo/$arch
-
-# ## Germany
-# #,Server = https://mirror.sum7.eu/archlinux/archzfs/$repo/$arch
-# #,Server = https://mirror.biocrafting.net/archlinux/archzfs/$repo/$arch
-
-# ## India
-# #,Server = https://mirror.in.themindsmaze.com/archzfs/$repo/$arch
-
-# ## United States
-# #,Server = https://zxcvfdsa.com/archzfs/$repo/$arch
-# EOF
-
-# tee -a /etc/pacman.conf <<- 'EOF'
-
-# #[archzfs-testing]
-# #Include = /etc/pacman.d/mirrorlist-archzfs
-
-# #,[archzfs]
-# #,Include = /etc/pacman.d/mirrorlist-archzfs
-# EOF
-
-# # this #, prefix is a workaround for ci/cd tests
-# # remove them
-# sed -i 's|#,||' /etc/pacman.d/mirrorlist-archzfs
-# sed -i 's|#,||' /etc/pacman.conf
-# sed -i 's|^#||' /etc/pacman.d/mirrorlist
-
+pacstrap "${MNT}"  base base-devel linux linux-headers linux-firmware grub efibootmgr nano micro openssh ansible git
 
 echo 'Copy chroot-zfs-script to /mnt...'
 
