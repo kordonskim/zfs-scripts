@@ -3,7 +3,7 @@ NC='\033[0m'
 
 
 # Adding zfs packages
-echo -e '\n${GRN}Adding zfs packages...${NC}\n'
+echo -e "\n${GRN}Adding zfs packages...${NC}\n"
 
 curl -s https://raw.githubusercontent.com/eoli3n/archiso-zfs/master/init | bash
 
@@ -12,7 +12,7 @@ curl -s https://raw.githubusercontent.com/eoli3n/archiso-zfs/master/init | bash
 # mount -o remount,size=1G /run/archiso/cowspace    
 # wipefs -a /dev/disk/by-id/ata-Hitachi_HDS5C3020BLE630_MCE7215P035WTN
 
-echo -e '\n${GRN}Setting variables...${NC}\n'
+echo -e "\n${GRN}Setting variables...${NC}\n"
 
 DISK='/dev/disk/by-id/ata-Hitachi_HDS5C3020BLE630_MCE7215P035WTN'
 MNT=/mnt
@@ -20,7 +20,7 @@ SWAPSIZE=16
 RESERVE=1
 
 # create partitions
-echo -e '\n${GRN}Creating partitions...${NC}\n'
+echo -e "\n${GRN}Creating partitions...${NC}\n"
 
 partition_disk () {
  local disk="${1}"
@@ -45,12 +45,12 @@ for i in ${DISK}; do
 done
 
 # Load ZFS kernel module
-echo -e '\n${GRN}Load ZFS kernel module...${NC}\n'
+echo -e "\n${GRN}Load ZFS kernel module...${NC}\n"
 
 modprobe zfs
 
 # create zfs boot
-echo -e '\n${GRN}Create bpool...${NC}\n'
+echo -e "\n${GRN}Create bpool...${NC}\n"
 
 zpool create -d \
     -f \
@@ -82,7 +82,7 @@ zpool create -d \
       done)
 
 # create rpool      
-echo -e '\n${GRN}Create rpool...${NC}\n'
+echo -e "\n${GRN}Create rpool...${NC}\n"
 
 zpool create \
     -f \
@@ -103,7 +103,7 @@ zpool create \
      done)
 
 #  create rpool system container
-echo -e '\n${GRN}Create rpool system container...${NC}\n'
+echo -e "\n${GRN}Create rpool system container...${NC}\n"
 
 zfs create \
  -o canmount=off \
@@ -111,7 +111,7 @@ zfs create \
 rpool/archlinux     
 
 # Create system datasets, manage mountpoints with mountpoint=legacy
-echo -e '\n${GRN}Create system datasets, manage mountpoints with legacy...${NC}\n'
+echo -e "\n${GRN}Create system datasets, manage mountpoints with legacy...${NC}\n"
 
 zfs create -o canmount=noauto -o mountpoint=/  rpool/archlinux/root
 zfs mount rpool/archlinux/root
@@ -131,7 +131,7 @@ mount -t zfs bpool/archlinux/root "${MNT}"/boot
 # mount -t zfs rpool/archlinux/var/log "${MNT}"/var/log
 
 # Format and mount ESP
-echo -e '\n${GRN}Format and mount ESP...${NC}\n'
+echo -e "\n${GRN}Format and mount ESP...${NC}\n"
 
 for i in ${DISK}; do
  mkfs.vfat -n EFI "${i}"-part1
@@ -143,7 +143,7 @@ mkdir -p "${MNT}"/boot/efi
 mount -t vfat -o iocharset=iso8859-1 "$(echo "${DISK}" | sed "s|^ *||"  | cut -f1 -d' '|| true)"-part1 "${MNT}"/boot/efi
 
 # Generate fstab:
-echo -e '\n${GRN}Generate fstab...${NC}\n'
+echo -e "\n${GRN}Generate fstab...${NC}\n"
 
 mkdir "${MNT}"/etc
 genfstab -t PARTUUID "${MNT}" \
@@ -156,23 +156,23 @@ genfstab -t PARTUUID "${MNT}" \
 # chroot "${MNT}" /usr/bin/env DISK="${DISK}" bash
 
 # Pacstrap packages to MNT
-echo -e '\n${GRN}Pacstrap packages to MNT...${NC}\n'
+echo -e "\n${GRN}Pacstrap packages to MNT...${NC}\n"
 
-pacstrap "${MNT}"  base base-devel linux linux-headers linux-firmware grub efibootmgr nano micro openssh ansible git
+pacstrap "${MNT}" base base-devel linux linux-headers linux-firmware grub efibootmgr nano micro openssh ansible git
 cp /etc/resolv.conf "${MNT}"/etc/resolv.conf
 
-echo -e '\n${GRN}Copy chroot-zfs-script to /mnt...${NC}\n'
+echo -e "\n${GRN}Copy chroot-zfs-script to /mnt...${NC}\n"
 
 cp ./chroot-zfs-script.sh /mnt/root
 
-echo -e '\n${GRN}Run chroot-zfs-script...${NC}\n'
+echo -e "\n${GRN}Run chroot-zfs-script...${NC}\n"
 
 arch-chroot "${MNT}" /usr/bin/env DISK="${DISK}" sh /root/chroot-zfs-script.sh
 
-echo -e '\n${GRN}Cleanup...${NC}\n'
+echo -e "\n${GRN}Cleanup...${NC}\n"
 
 rm /mnt/root/chroot-zfs-script.sh 
 # umount -Rl "${MNT}"
 # zpool export -a
 
-echo -e '\n${GRN}Done...${NC}\n'
+echo -e "\n${GRN}Done...${NC}\n"
