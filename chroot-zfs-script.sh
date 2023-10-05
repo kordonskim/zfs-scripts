@@ -45,6 +45,7 @@ echo -e "\n${GRN}Enable services...${NC}\n"
 
 echo '[Match]\nName=eno*\n\n[Network]\nDHCP=yes' >> /etc/systemd/network/20-wired.network
 echo '\n nameserver 1.1.1.1\nameserver 9.9.9.9' >> /etc/resolv.conf
+sed -i 's|#PasswordAuthentication|PasswordAuthentication|' /etc/ssh/sshd_config
 
 systemctl enable systemd-timesyncd
 systemctl enable systemd-networkd

@@ -156,7 +156,7 @@ genfstab -t PARTUUID "${MNT}" \
 # chroot "${MNT}" /usr/bin/env DISK="${DISK}" bash
 
 # Pacstrap packages to MNT
-echo -e "\n${GRN}Pacstrap packages to MNT...${NC}\n"
+echo -e "\n${GRN}Pacstrap packages to /mnt...${NC}\n"
 
 pacstrap "${MNT}" base base-devel linux linux-headers linux-firmware grub efibootmgr nano micro openssh ansible git
 cp /etc/resolv.conf "${MNT}"/etc/resolv.conf
@@ -172,6 +172,8 @@ arch-chroot "${MNT}" /usr/bin/env DISK="${DISK}" sh /root/chroot-zfs-script.sh
 echo -e "\n${GRN}Cleanup...${NC}\n"
 
 rm /mnt/root/chroot-zfs-script.sh 
+echo -e "\n${ORG}Run umount -Rl /mnt${NC}\n"
+echo -e "\n${ORG}Run zpool export -a${NC}\n"
 # umount -Rl "${MNT}"
 # zpool export -a
 
