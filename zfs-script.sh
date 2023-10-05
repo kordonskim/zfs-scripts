@@ -164,11 +164,11 @@ genfstab -t PARTUUID "${MNT}" \
 | sed "s|vfat.*rw|vfat rw,x-systemd.idle-timeout=1min,x-systemd.automount,noauto,nofail|" \
 > "${MNT}"/etc/fstab
 
-# Chroot
+# # Chroot
 
-cp /etc/resolv.conf "${MNT}"/etc/resolv.conf
-for i in /dev /proc /sys; do mkdir -p "${MNT}"/"${i}"; mount --rbind "${i}" "${MNT}"/"${i}"; done
-chroot "${MNT}" /usr/bin/env DISK="${DISK}" bash
+# cp /etc/resolv.conf "${MNT}"/etc/resolv.conf
+# for i in /dev /proc /sys; do mkdir -p "${MNT}"/"${i}"; mount --rbind "${i}" "${MNT}"/"${i}"; done
+# chroot "${MNT}" /usr/bin/env DISK="${DISK}" bash
 
 # Pacstrap packages to MNT
 echo 'Pacstrap packages to MNT...'
