@@ -225,10 +225,10 @@ echo 'Run chroot-zfs-script...'
 
 arch-chroot "${MNT}" /usr/bin/env DISK="${DISK}" sh /root/chroot-zfs-script.sh
 
-echo 'Cleanup...'
+# echo 'Cleanup...'
 
-umount -Rl "${MNT}"
-zpool export -a
+# umount -Rl "${MNT}"
+# zpool export -a
 
 
 

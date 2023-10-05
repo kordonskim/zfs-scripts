@@ -6,6 +6,7 @@ Server = https://archzfs.com/$repo/x86_64' >> /etc/pacman.conf
 
 # ArchZFS GPG keys (see https://wiki.archlinux.org/index.php/Unofficial_user_repositories#archzfs)
 echo 'Updating keys...'
+
 pacman-key -r DDF7DB817396A49B2A2723F7403BD972F75D9D76
 pacman-key --lsign-key DDF7DB817396A49B2A2723F7403BD972F75D9D76
 
@@ -17,7 +18,6 @@ pacman -Sy
 | grep 'Depends On' \
 | sed "s|.*linux=||" \
 | awk '{ print $1 }')" 
-
 pacman -U --noconfirm https://america.archive.pkgbuild.com/packages/l/linux/linux-"${kernel_compatible_with_zfs}"-x86_64.pkg.tar.zst
 
 # Install zfs packages
@@ -52,6 +52,7 @@ locale-gen
 
 # GRUB
 # Apply GRUB workaround
+echo 'Apply GRUB workaround...'
 
 export ZPOOL_VDEV_NAME_PATH=YES
 
@@ -88,3 +89,9 @@ cp /boot/grub/grub.cfg /boot/efi/archlinux/grub-bootdir/i386-pc/grub/grub.cfg
 espdir=$(mktemp -d)
 find /boot/efi/ -maxdepth 1 -mindepth 1 -type d -print0 | xargs -t -0I '{}' cp -r '{}' "${espdir}"
 find "${espdir}" -maxdepth 1 -mindepth 1 -type d -print0 | xargs -t -0I '{}' sh -vxc "find /boot/efis/ -maxdepth 1 -mindepth 1 -type d -print0 | xargs -t -0I '[]' cp -r '{}' '[]'"
+
+# Adding user 
+echo 'Adding user mk...'
+
+ useradd -m -G root mk
+ echo 'mk:1234' | chpasswd
