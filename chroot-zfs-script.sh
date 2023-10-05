@@ -1,17 +1,22 @@
-echo 'Adding ArchZFS repo to pacman...'
+GRN='\033[0;32m'
+NC='\033[0m'
+ORG='\033[0;33m'
+
+echo -e '\n${GRN}Adding ArchZFS repo to pacman...${NC}\n'
+
 echo -e '
 [archzfs]
 Server = https://archzfs.com/$repo/x86_64' >> /etc/pacman.conf
 
 
 # ArchZFS GPG keys (see https://wiki.archlinux.org/index.php/Unofficial_user_repositories#archzfs)
-echo 'Updating keys...'
+echo -e '\n${GRN}Updating keys...${NC}\n'
 
 pacman-key -r DDF7DB817396A49B2A2723F7403BD972F75D9D76
 pacman-key --lsign-key DDF7DB817396A49B2A2723F7403BD972F75D9D76
 
 # Install base packages
-echo 'Install base packages...'
+echo -e '\n${GRN}Install base packages...${NC}\n'
 
 pacman -Sy
  kernel_compatible_with_zfs="$(pacman -Si zfs-linux \
@@ -21,12 +26,12 @@ pacman -Sy
 pacman -U --noconfirm https://america.archive.pkgbuild.com/packages/l/linux/linux-"${kernel_compatible_with_zfs}"-x86_64.pkg.tar.zst
 
 # Install zfs packages
-echo 'Install zfs packages...'
+echo -e '\n${GRN}Install zfs packages...${NC}\n'
 
 pacman -S --noconfirm zfs-linux zfs-utils
 
 # Configure mkinitcpio
-echo 'Configure mkinitcpio...'
+echo -e '\n${GRN}Configure mkinitcpio...${NC}\n'
 
 sed -i 's|filesystems|zfs filesystems|' /etc/mkinitcpio.conf
 mkinitcpio -P
@@ -35,14 +40,18 @@ mkinitcpio -P
 
 pacman -S --noconfirm linux-firmware intel-ucode amd-ucode
 
-# Enable internet time synchronisation:
+# Enable services
+echo -e '\n${GRN}Enable services...${NC}\n'
+
+echo '[Match]\nName=eno*\n\n[Network]\nDHCP=yes' >> /etc/systemd/network/20-wired.network
+echo '\n nameserver 1.1.1.1\nameserver 9.9.9.9' >> /etc/resolv.conf
 
 systemctl enable systemd-timesyncd
-systemctl enable systemd-timesyncd
+systemctl enable systemd-networkd
 systemctl enable sshd
 
 # Set hostname
-echo 'Set hostname...'
+echo -e '\n${GRN}Set hostname...${NC}\n'
 
 echo arch > /etc/hostname
 echo -e '127.0.0.1 localhost\n::1 localhost\n127.0.1.1 arch' >> /etc/hosts
@@ -54,7 +63,7 @@ locale-gen
 
 # GRUB
 # Apply GRUB workaround
-echo 'Apply GRUB workaround...'
+echo -e '\n${GRN}Apply GRUB workaround...${NC}\n'
 
 export ZPOOL_VDEV_NAME_PATH=YES
 
@@ -62,7 +71,7 @@ export ZPOOL_VDEV_NAME_PATH=YES
 sed -i "s|rpool=.*|rpool=rpool|"  /etc/grub.d/10_linux
 
 # Install GRUB
-echo 'Install GRUB...'
+echo -e '\n${GRN}Install GRUB...${NC}\n'
 
 mkdir -p /boot/efi/archlinux/grub-bootdir/i386-pc/
 mkdir -p /boot/efi/archlinux/grub-bootdir/x86_64-efi/
@@ -79,7 +88,7 @@ fi
 echo 'GRUB_CMDLINE_LINUX="zfs_import_dir=/dev/"' >> /etc/default/grub
 
 # Generate GRUB menu
-echo 'Generate GRUB menu'
+echo -e '\n${GRN}Generate GRUB menu...${NC}\n'
 
 mkdir -p /boot/grub
 grub-mkconfig -o /boot/grub/grub.cfg
@@ -93,10 +102,12 @@ find /boot/efi/ -maxdepth 1 -mindepth 1 -type d -print0 | xargs -t -0I '{}' cp -
 find "${espdir}" -maxdepth 1 -mindepth 1 -type d -print0 | xargs -t -0I '{}' sh -vxc "find /boot/efis/ -maxdepth 1 -mindepth 1 -type d -print0 | xargs -t -0I '[]' cp -r '{}' '[]'"
 
 # Adding user 
-echo 'Adding user mk...'
+echo -e '\n${GRN}Adding user mk...${NC}\n'
 
-useradd -m -G root sudo mk
-echo 'mk:1234' | chpasswd
-echo 'root:1234' | chpasswd
+useradd -m -G root,sudo,wheel mk
+
+echo -e '\n${ORG}Changing password for mk:${NC}\n'
+passwd mk
+echo -e '\n${ORG}Changing password for root:${NC}\n'
 passwd root
 
