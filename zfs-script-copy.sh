@@ -1,7 +1,7 @@
 GRN='\033[0;32m'
 NC='\033[0m'
-BLU='\033[0;34m'
-
+BBLU='\033[1;34m'
+BRED='\033[1;31m'
 
 # Adding zfs packages
 echo -e "\n${GRN}Adding zfs packages...${NC}\n"
@@ -29,15 +29,15 @@ partition_disk () {
 
  parted --script --align=optimal  "${disk}" -- \
  mklabel gpt \
+ mkpart BIOS 1MiB 2MiB \
  mkpart EFI 2MiB 1GiB \
  mkpart bpool 1GiB 5GiB \
  mkpart rpool 5GiB -$((SWAPSIZE + RESERVE))GiB \
  mkpart swap  -$((SWAPSIZE + RESERVE))GiB -"${RESERVE}"GiB \
- mkpart BIOS 1MiB 2MiB \
- set 1 esp on \
- set 5 bios_grub on \
- set 5 legacy_boot on
-
+ set 1 bios_grub on \
+ set 1 legacy_boot on \
+ set 2 esp on 
+ 
  partprobe "${disk}"
 }
 
@@ -49,8 +49,8 @@ done
 echo -e "\n${GRN}Swap setup...${NC}\n"
 
 for i in ${DISK}; do
-   mkswap "${i}"-part4
-   swapon "${i}"-part4
+   mkswap "${i}"-part5
+   swapon "${i}"-part5
 done
 
 
@@ -88,7 +88,7 @@ zpool create -d \
     -R "${MNT}" \
     bpool \
     $(for i in ${DISK}; do
-       printf '%s ' "${i}-part2";
+       printf '%s ' "${i}-part3";
       done)
 
 # create rpool      
@@ -109,7 +109,7 @@ zpool create \
     -O mountpoint=/ \
     rpool \
    $(for i in ${DISK}; do
-      printf '%s ' "${i}-part3";
+      printf '%s ' "${i}-part4";
      done)
 
 #  create rpool system container
@@ -140,6 +140,7 @@ mount -t zfs bpool/archlinux/root "${MNT}"/boot
 # mount -t zfs rpool/archlinux/var/lib "${MNT}"/var/lib
 # mount -t zfs rpool/archlinux/var/log "${MNT}"/var/log
 
+# Setting ZFS cache
 echo -e "\n${GRN}Setting ZFS cache...${NC}\n"
 
 mkdir -p  "${MNT}"/etc/zfs
@@ -150,13 +151,13 @@ cp /etc/zfs/zpool.cache "${MNT}"/etc/zfs/zpool.cache
 echo -e "\n${GRN}Format and mount ESP...${NC}\n"
 
 for i in ${DISK}; do
- mkfs.vfat -n EFI "${i}"-part1
- mkdir -p "${MNT}"/boot/efis/"${i##*/}"-part1
- mount -t vfat -o iocharset=iso8859-1 "${i}"-part1 "${MNT}"/boot/efis/"${i##*/}"-part1
+ mkfs.vfat -n EFI "${i}"-part2
+ mkdir -p "${MNT}"/boot/efis/"${i##*/}"-part2
+ mount -t vfat -o iocharset=iso8859-1 "${i}"-part2 "${MNT}"/boot/efis/"${i##*/}"-part2
 done
 
 mkdir -p "${MNT}"/boot/efi
-mount -t vfat -o iocharset=iso8859-1 "$(echo "${DISK}" | sed "s|^ *||"  | cut -f1 -d' '|| true)"-part1 "${MNT}"/boot/efi
+mount -t vfat -o iocharset=iso8859-1 "$(echo "${DISK}" | sed "s|^ *||"  | cut -f1 -d' '|| true)"-part2 "${MNT}"/boot/efi
 
 # Generate fstab:
 echo -e "\n${GRN}Generate fstab...${NC}\n"
@@ -182,15 +183,15 @@ echo -e "\n${GRN}Copy chroot-zfs-script to /mnt...${NC}\n"
 
 cp ./chroot-zfs-script.sh /mnt/root
 
-echo -e "\n${BLU}Run chroot-zfs-script...${NC}\n"
+echo -e "\n${BBLU}Run chroot-zfs-script...${NC}\n"
 
 arch-chroot "${MNT}" /usr/bin/env DISK="${DISK}" sh /root/chroot-zfs-script.sh
 
 echo -e "\n${GRN}Cleanup...${NC}\n"
 
 rm /mnt/root/chroot-zfs-script.sh 
-echo -e "\n${ORG}Run umount -Rl /mnt${NC}\n"
-echo -e "\n${ORG}Run zpool export -a${NC}\n"
+echo -e "\n${BRED}Run umount -Rl /mnt${NC}"
+echo -e "\n${BRED}Run zpool export -a${NC}"
 # umount -Rl "${MNT}"
 # zpool export -a
 
