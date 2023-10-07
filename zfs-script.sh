@@ -44,6 +44,15 @@ for i in ${DISK}; do
    partition_disk "${i}"
 done
 
+# Swap setup
+echo -e "\n${GRN}Swap setup...${NC}\n"
+
+for i in ${DISK}; do
+   mkswap "${i}"-part4
+   swapon "${i}"-part4
+done
+
+
 # Load ZFS kernel module
 echo -e "\n${GRN}Load ZFS kernel module...${NC}\n"
 
