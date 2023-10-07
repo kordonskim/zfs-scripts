@@ -155,10 +155,11 @@ mount -t vfat -o iocharset=iso8859-1 "$(echo "${DISK}" | sed "s|^ *||"  | cut -f
 echo -e "\n${GRN}Generate fstab...${NC}\n"
 
 mkdir "${MNT}"/etc
-genfstab -t PARTUUID "${MNT}" \
-| grep -v swap \
-| sed "s|vfat.*rw|vfat rw,x-systemd.idle-timeout=1min,x-systemd.automount,noauto,nofail|" \
-> "${MNT}"/etc/fstab
+genfstab -U -p "${MNT}" >> "${MNT}"/etc/fstab
+# genfstab -t PARTUUID "${MNT}" \
+# | grep -v swap \
+# | sed "s|vfat.*rw|vfat rw,x-systemd.idle-timeout=1min,x-systemd.automount,noauto,nofail|" \
+# > "${MNT}"/etc/fstab
 
 # # Chroot
 # for i in /dev /proc /sys; do mkdir -p "${MNT}"/"${i}"; mount --rbind "${i}" "${MNT}"/"${i}"; done
