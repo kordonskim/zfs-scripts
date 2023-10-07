@@ -48,8 +48,8 @@ done
 echo -e "\n${GRN}Swap setup...${NC}\n"
 
 for i in ${DISK}; do
-   mkswap "${i##*/}"-part4
-   swapon "${i##*/}"-part4
+   mkswap "${i}"-part4
+   swapon "${i}"-part4
 done
 
 # Load ZFS kernel module
