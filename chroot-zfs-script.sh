@@ -18,6 +18,7 @@ pacman-key --lsign-key DDF7DB817396A49B2A2723F7403BD972F75D9D76
 # Install base packages
 echo -e "\n${GRN}Install base packages...${NC}\n"
 
+sed -i 's|fsck||' /etc/mkinitcpio.conf
 pacman -Sy
 kernel_compatible_with_zfs="$(pacman -Si zfs-linux \
 | grep 'Depends On' \
@@ -33,7 +34,7 @@ pacman -S --noconfirm zfs-linux zfs-utils
 # Configure mkinitcpio
 echo -e "\n${GRN}Configure mkinitcpio...${NC}\n"
 
-sed -i 's|filesystems fsck|zfs filesystems|' /etc/mkinitcpio.conf
+sed -i 's|filesystems|zfs filesystems|' /etc/mkinitcpio.conf
 mkinitcpio -P
 
 # For physical machine, install firmware

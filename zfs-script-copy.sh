@@ -1,19 +1,24 @@
+# find /dev/disk/by-id/
+# mount -o remount,size=1G /run/archiso/cowspace    
+# wipefs -a /dev/disk/by-id/ata-Hitachi_HDS5C3020BLE630_MCE7215P035WTN
+
 GRN='\033[0;32m'
 NC='\033[0m'
 BBLU='\033[1;34m'
 BRED='\033[1;31m'
 
 # Adding zfs packages
-echo -e "\n${GRN}Adding zfs packages...${NC}\n"
+# echo -e "\n${GRN}Adding zfs packages...${NC}\n"
 
-curl -s https://raw.githubusercontent.com/eoli3n/archiso-zfs/master/init | bash
+# curl -s https://raw.githubusercontent.com/eoli3n/archiso-zfs/master/init | bash
 
-# find /dev/disk/by-id/
+#Increase cowspace to half of RAM.
+echo -e "\n${GRN}Increase cowspace to half of RAM...${NC}\n"
 
-# mount -o remount,size=1G /run/archiso/cowspace    
-# wipefs -a /dev/disk/by-id/ata-Hitachi_HDS5C3020BLE630_MCE7215P035WTN
+mount -o remount,size=50% /run/archiso/cowspace
 
-echo -e "\n${GRN}Setting variables...${NC}\n"
+# Setting variables
+echo -e "\n${GRN}Set variables...${NC}\n"
 
 DISK='/dev/disk/by-id/ata-Hitachi_HDS5C3020BLE630_MCE7215P035WTN'
 MNT=/mnt
@@ -21,7 +26,7 @@ SWAPSIZE=16
 RESERVE=1
 
 # create partitions
-echo -e "\n${GRN}Creating partitions...${NC}\n"
+echo -e "\n${GRN}Create partitions...${NC}\n"
 
 partition_disk () {
  local disk="${1}"
@@ -36,7 +41,8 @@ partition_disk () {
  mkpart swap  -$((SWAPSIZE + RESERVE))GiB -"${RESERVE}"GiB \
  set 1 bios_grub on \
  set 1 legacy_boot on \
- set 2 esp on 
+ set 2 esp on \
+ set 5 swap on
  
  partprobe "${disk}"
 }
