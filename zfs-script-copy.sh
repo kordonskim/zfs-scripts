@@ -144,7 +144,7 @@ mount -t zfs bpool/archlinux/root "${MNT}"/boot
 echo -e "\n${GRN}Setting ZFS cache...${NC}\n"
 
 mkdir -p  "${MNT}"/etc/zfs
-zpool set cachefile=/etc/zfs/zpool.cache zroot
+zpool set cachefile=/etc/zfs/zpool.cache rpool
 cp /etc/zfs/zpool.cache "${MNT}"/etc/zfs/zpool.cache
 
 # Format and mount ESP
