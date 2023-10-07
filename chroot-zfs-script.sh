@@ -43,8 +43,8 @@ pacman -S --noconfirm linux-firmware intel-ucode amd-ucode
 # Enable services
 echo -e "\n${GRN}Enable services...${NC}\n"
 
-echo '[Match]\nName=eno*\n\n[Network]\nDHCP=yes' >> /etc/systemd/network/20-wired.network
-echo '\n nameserver 1.1.1.1\nameserver 9.9.9.9' >> /etc/resolv.conf
+echo -e "[Match]\nName=eno*\n\n[Network]\nDHCP=yes" > /etc/systemd/network/20-wired.network
+echo -e "\nnameserver 1.1.1.1\nnameserver 9.9.9.9" >> /etc/resolv.conf
 sed -i 's|#PasswordAuthentication|PasswordAuthentication|' /etc/ssh/sshd_config
 
 systemctl enable systemd-timesyncd
