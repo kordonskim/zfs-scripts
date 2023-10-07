@@ -19,7 +19,7 @@ pacman-key --lsign-key DDF7DB817396A49B2A2723F7403BD972F75D9D76
 echo -e "\n${GRN}Install base packages...${NC}\n"
 
 pacman -Sy
- kernel_compatible_with_zfs="$(pacman -Si zfs-linux \
+kernel_compatible_with_zfs="$(pacman -Si zfs-linux \
 | grep 'Depends On' \
 | sed "s|.*linux=||" \
 | awk '{ print $1 }')" 
@@ -33,7 +33,7 @@ pacman -S --noconfirm zfs-linux zfs-utils
 # Configure mkinitcpio
 echo -e "\n${GRN}Configure mkinitcpio...${NC}\n"
 
-sed -i 's|filesystems|zfs filesystems|' /etc/mkinitcpio.conf
+sed -i 's|filesystems fsck|zfs filesystems|' /etc/mkinitcpio.conf
 mkinitcpio -P
 
 # For physical machine, install firmware
@@ -105,8 +105,8 @@ find "${espdir}" -maxdepth 1 -mindepth 1 -type d -print0 | xargs -t -0I '{}' sh 
 # Adding user 
 echo -e "\n${GRN}Adding user mk...${NC}\n"
 
-groupadd sudo
-useradd -m -G root,sudo,wheel mk
+# groupadd sudo
+useradd -m -G root,wheel mk
 
 echo -e "\n${ORG}Changing password for mk:${NC}\n"
 passwd mk

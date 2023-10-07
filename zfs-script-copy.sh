@@ -28,16 +28,15 @@ partition_disk () {
 
  parted --script --align=optimal  "${disk}" -- \
  mklabel gpt \
- mkpart BIOS 1MiB 2MiB \
  mkpart EFI 2MiB 1GiB \
  mkpart bpool 1GiB 5GiB \
  mkpart rpool 5GiB -$((SWAPSIZE + RESERVE))GiB \
  mkpart swap  -$((SWAPSIZE + RESERVE))GiB -"${RESERVE}"GiB \
- set 1 bios_grub on \
- set 1 legacy_boot on \
- set 2 esp on \
- set 4 swap on
- 
+ mkpart BIOS 1MiB 2MiB \
+ set 1 esp on \
+ set 5 bios_grub on \
+ set 5 legacy_boot on
+
  partprobe "${disk}"
 }
 
@@ -45,12 +44,12 @@ for i in ${DISK}; do
    partition_disk "${i}"
 done
 
-# Setup swap
-echo -e "\n${GRN}Setup swap...${NC}\n"
+# Swap setup
+echo -e "\n${GRN}Swap setup...${NC}\n"
 
 for i in ${DISK}; do
-   mkswap "${i}-part5"
-   swapon "${i}-part5"
+   mkswap "${i##*/}"-part4
+   swapon "${i##*/}"-part4
 done
 
 # Load ZFS kernel module
@@ -87,7 +86,7 @@ zpool create -d \
     -R "${MNT}" \
     bpool \
     $(for i in ${DISK}; do
-       printf '%s ' "${i}-part3";
+       printf '%s ' "${i}-part2";
       done)
 
 # create rpool      
@@ -108,37 +107,48 @@ zpool create \
     -O mountpoint=/ \
     rpool \
    $(for i in ${DISK}; do
-      printf '%s ' "${i}-part4";
+      printf '%s ' "${i}-part3";
      done)
 
 #  create rpool system container
 echo -e "\n${GRN}Create rpool system container...${NC}\n"
 
-zfs create -o canmount=off -o mountpoint=none rpool/archlinux     
+zfs create \
+ -o canmount=off \
+ -o mountpoint=none \
+rpool/archlinux     
 
-# Create system datasets
-echo -e "\n${GRN}Create system datasets...${NC}\n"
+# Create system datasets, manage mountpoints with mountpoint=legacy
+echo -e "\n${GRN}Create system datasets, manage mountpoints with legacy...${NC}\n"
 
 zfs create -o canmount=noauto -o mountpoint=/  rpool/archlinux/root
 zfs mount rpool/archlinux/root
-zfs create -o mountpoint=/home rpool/archlinux/home
-zfs mount -a
+zfs create -o mountpoint=legacy rpool/archlinux/home
+mkdir "${MNT}"/home
+mount -t zfs rpool/archlinux/home "${MNT}"/home
+# zfs create -o mountpoint=legacy  rpool/archlinux/var
+# zfs create -o mountpoint=legacy rpool/archlinux/var/lib
+# zfs create -o mountpoint=legacy rpool/archlinux/var/log
 zfs create -o mountpoint=none bpool/archlinux
 zfs create -o mountpoint=legacy bpool/archlinux/root
 mkdir "${MNT}"/boot
 mount -t zfs bpool/archlinux/root "${MNT}"/boot
+# mkdir -p "${MNT}"/var/log
+# mkdir -p "${MNT}"/var/lib
+# mount -t zfs rpool/archlinux/var/lib "${MNT}"/var/lib
+# mount -t zfs rpool/archlinux/var/log "${MNT}"/var/log
 
 # Format and mount ESP
 echo -e "\n${GRN}Format and mount ESP...${NC}\n"
 
 for i in ${DISK}; do
- mkfs.vfat -n EFI "${i}"-part2
- mkdir -p "${MNT}"/boot/efis/"${i##*/}"-part2
- mount -t vfat -o iocharset=iso8859-1 "${i}"-part2 "${MNT}"/boot/efis/"${i##*/}"-part2
+ mkfs.vfat -n EFI "${i}"-part1
+ mkdir -p "${MNT}"/boot/efis/"${i##*/}"-part1
+ mount -t vfat -o iocharset=iso8859-1 "${i}"-part1 "${MNT}"/boot/efis/"${i##*/}"-part1
 done
 
 mkdir -p "${MNT}"/boot/efi
-mount -t vfat -o iocharset=iso8859-1 "$(echo "${DISK}" | sed "s|^ *||"  | cut -f1 -d' '|| true)"-part2 "${MNT}"/boot/efi
+mount -t vfat -o iocharset=iso8859-1 "$(echo "${DISK}" | sed "s|^ *||"  | cut -f1 -d' '|| true)"-part1 "${MNT}"/boot/efi
 
 # Generate fstab:
 echo -e "\n${GRN}Generate fstab...${NC}\n"
