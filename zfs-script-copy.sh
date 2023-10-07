@@ -1,5 +1,6 @@
 GRN='\033[0;32m'
 NC='\033[0m'
+BLU='\033[0;34m'
 
 
 # Adding zfs packages
@@ -175,7 +176,7 @@ echo -e "\n${GRN}Copy chroot-zfs-script to /mnt...${NC}\n"
 
 cp ./chroot-zfs-script.sh /mnt/root
 
-echo -e "\n${GRN}Run chroot-zfs-script...${NC}\n"
+echo -e "\n${BLU}Run chroot-zfs-script...${NC}\n"
 
 arch-chroot "${MNT}" /usr/bin/env DISK="${DISK}" sh /root/chroot-zfs-script.sh
 
