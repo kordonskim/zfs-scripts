@@ -52,6 +52,7 @@ for i in ${DISK}; do
    swapon "${i}"-part4
 done
 
+
 # Load ZFS kernel module
 echo -e "\n${GRN}Load ZFS kernel module...${NC}\n"
 

@@ -69,7 +69,7 @@ echo -e "\n${GRN}Apply GRUB workaround...${NC}\n"
 export ZPOOL_VDEV_NAME_PATH=YES
 
 # GRUB fails to detect rpool name, hard code as "rpool"
-sed -i "s|rpool=.*|rpool=rpool|"  /etc/grub.d/10_linux
+sed -i "s|rpool=.*|rpool=rpool|" /etc/grub.d/10_linux
 
 # Install GRUB
 echo -e "\n${GRN}Install GRUB...${NC}\n"
@@ -87,6 +87,7 @@ fi
 # Import both bpool and rpool at boot:
 
 echo 'GRUB_CMDLINE_LINUX="zfs_import_dir=/dev/"' >> /etc/default/grub
+sed -i "s|loglevel=3 quiet|loglevel=3|" /etc/default/grub
 
 # Generate GRUB menu
 echo -e "\n${GRN}Generate GRUB menu...${NC}\n"
