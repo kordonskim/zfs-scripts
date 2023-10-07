@@ -49,8 +49,8 @@ done
 echo -e "\n${GRN}Setup swap...${NC}\n"
 
 for i in ${DISK}; do
-   mkswap "${i}-part4"
-   swapon "${i}-part4"
+   mkswap "${i}-part5"
+   swapon "${i}-part5"
 done
 
 # Load ZFS kernel module
@@ -87,7 +87,7 @@ zpool create -d \
     -R "${MNT}" \
     bpool \
     $(for i in ${DISK}; do
-       printf '%s ' "${i}-part2";
+       printf '%s ' "${i}-part3";
       done)
 
 # create rpool      
@@ -108,7 +108,7 @@ zpool create \
     -O mountpoint=/ \
     rpool \
    $(for i in ${DISK}; do
-      printf '%s ' "${i}-part3";
+      printf '%s ' "${i}-part4";
      done)
 
 #  create rpool system container
@@ -132,13 +132,13 @@ mount -t zfs bpool/archlinux/root "${MNT}"/boot
 echo -e "\n${GRN}Format and mount ESP...${NC}\n"
 
 for i in ${DISK}; do
- mkfs.vfat -n EFI "${i}"-part1
- mkdir -p "${MNT}"/boot/efis/"${i##*/}"-part1
- mount -t vfat -o iocharset=iso8859-1 "${i}"-part1 "${MNT}"/boot/efis/"${i##*/}"-part1
+ mkfs.vfat -n EFI "${i}"-part2
+ mkdir -p "${MNT}"/boot/efis/"${i##*/}"-part2
+ mount -t vfat -o iocharset=iso8859-1 "${i}"-part2 "${MNT}"/boot/efis/"${i##*/}"-part2
 done
 
 mkdir -p "${MNT}"/boot/efi
-mount -t vfat -o iocharset=iso8859-1 "$(echo "${DISK}" | sed "s|^ *||"  | cut -f1 -d' '|| true)"-part1 "${MNT}"/boot/efi
+mount -t vfat -o iocharset=iso8859-1 "$(echo "${DISK}" | sed "s|^ *||"  | cut -f1 -d' '|| true)"-part2 "${MNT}"/boot/efi
 
 # Generate fstab:
 echo -e "\n${GRN}Generate fstab...${NC}\n"
