@@ -1,6 +1,7 @@
 # find /dev/disk/by-id/
 # mount -o remount,size=1G /run/archiso/cowspace    
 # wipefs -a /dev/disk/by-id/ata-Hitachi_HDS5C3020BLE630_MCE7215P035WTN
+# git clone https://github.com/kordonskim/zfs-scripts
 
 GRN='\033[0;32m'
 NC='\033[0m'
@@ -118,22 +119,15 @@ zpool create \
       printf '%s ' "${i}-part4";
      done)
 
-#  create rpool system container
-echo -e "\n${GRN}Create rpool system container...${NC}\n"
-
-zfs create \
- -o canmount=off \
- -o mountpoint=none \
-rpool/archlinux     
-
 # Create system datasets, manage mountpoints with mountpoint=legacy
 echo -e "\n${GRN}Create system datasets, manage mountpoints with legacy...${NC}\n"
 
+zfs create -o canmount=off -o mountpoint=none rpool/archlinux     
 zfs create -o canmount=noauto -o mountpoint=/  rpool/archlinux/root
 zfs mount rpool/archlinux/root
-zfs create -o mountpoint=legacy rpool/archlinux/home
-mkdir "${MNT}"/home
-mount -t zfs rpool/archlinux/home "${MNT}"/home
+# zfs create -o mountpoint=legacy rpool/archlinux/home
+# mkdir "${MNT}"/home
+# mount -t zfs rpool/archlinux/home "${MNT}"/home
 # zfs create -o mountpoint=legacy  rpool/archlinux/var
 # zfs create -o mountpoint=legacy rpool/archlinux/var/lib
 # zfs create -o mountpoint=legacy rpool/archlinux/var/log
@@ -168,7 +162,7 @@ mount -t vfat -o iocharset=iso8859-1 "$(echo "${DISK}" | sed "s|^ *||"  | cut -f
 # Generate fstab:
 echo -e "\n${GRN}Generate fstab...${NC}\n"
 
-mkdir "${MNT}"/etc
+# mkdir "${MNT}"/etc
 genfstab -U -p "${MNT}" >> "${MNT}"/etc/fstab
 # genfstab -t PARTUUID "${MNT}" \
 # | grep -v swap \
@@ -196,8 +190,11 @@ arch-chroot "${MNT}" /usr/bin/env DISK="${DISK}" sh /root/chroot-zfs-script.sh
 echo -e "\n${GRN}Cleanup...${NC}\n"
 
 rm /mnt/root/chroot-zfs-script.sh 
+
+echo -e "\n${BRED}Run swapoff -a${NC}"
 echo -e "\n${BRED}Run umount -Rl /mnt${NC}"
 echo -e "\n${BRED}Run zpool export -a${NC}"
+# swapoff -a
 # umount -Rl "${MNT}"
 # zpool export -a
 
