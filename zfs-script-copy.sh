@@ -158,17 +158,14 @@ echo -e "\n${GRN}Generate fstab...${NC}\n"
 
 # mkdir "${MNT}"/etc
 genfstab -U -p "${MNT}" >> "${MNT}"/etc/fstab
-# genfstab -t PARTUUID "${MNT}" \
-# | grep -v swap \
-# | sed "s|vfat.*rw|vfat rw,x-systemd.idle-timeout=1min,x-systemd.automount,noauto,nofail|" \
-# > "${MNT}"/etc/fstab
 
+# remove rpool and bpool mounts form fstab
 sed -i '/rpool/d' "${MNT}"/etc/fstab
 sed -i '/bpool/d' "${MNT}"/etc/fstab
+# remove first empty lines from fstab
+sed -i '/./,$!d' "${MNT}"/etc/fstab
 
-# # Chroot
-# for i in /dev /proc /sys; do mkdir -p "${MNT}"/"${i}"; mount --rbind "${i}" "${MNT}"/"${i}"; done
-# chroot "${MNT}" /usr/bin/env DISK="${DISK}" bash
+cat "${MNT}"/etc/fstab
 
 # Pacstrap packages to MNT
 echo -e "\n${GRN}Pacstrap packages to /mnt...${NC}\n"
