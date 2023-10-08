@@ -133,7 +133,7 @@ zfs mount rpool/archlinux/root
 # zfs create -o mountpoint=legacy rpool/archlinux/var/log
 zfs create -o mountpoint=none bpool/archlinux
 zfs create -o mountpoint=/boot bpool/archlinux/root
-zfs mount bpool/archlinux/root
+# zfs mount bpool/archlinux/root
 
 # mkdir "${MNT}"/boot
 # mount -t zfs bpool/archlinux/root "${MNT}"/boot
