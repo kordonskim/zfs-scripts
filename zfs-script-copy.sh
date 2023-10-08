@@ -119,28 +119,17 @@ zpool create \
       printf '%s ' "${i}-part4";
      done)
 
-# Create system datasets, manage mountpoints with mountpoint=legacy
-echo -e "\n${GRN}Create system datasets, manage mountpoints with legacy...${NC}\n"
+# Create system and user datasets
+echo -e "\n${GRN}Create system and user datasets...${NC}\n"
 
 zfs create -o canmount=off -o mountpoint=none rpool/archlinux     
 zfs create -o canmount=noauto -o mountpoint=/  rpool/archlinux/root
 zfs mount rpool/archlinux/root
-# zfs create -o mountpoint=legacy rpool/archlinux/home
-# mkdir "${MNT}"/home
-# mount -t zfs rpool/archlinux/home "${MNT}"/home
-# zfs create -o mountpoint=legacy  rpool/archlinux/var
-# zfs create -o mountpoint=legacy rpool/archlinux/var/lib
-# zfs create -o mountpoint=legacy rpool/archlinux/var/log
+
+zfs create -o mountpoint=/home rpool/archlinux/home
+
 zfs create -o mountpoint=none bpool/archlinux
 zfs create -o mountpoint=/boot bpool/archlinux/root
-# zfs mount bpool/archlinux/root
-
-# mkdir "${MNT}"/boot
-# mount -t zfs bpool/archlinux/root "${MNT}"/boot
-# mkdir -p "${MNT}"/var/log
-# mkdir -p "${MNT}"/var/lib
-# mount -t zfs rpool/archlinux/var/lib "${MNT}"/var/lib
-# mount -t zfs rpool/archlinux/var/log "${MNT}"/var/log
 
 # Setting ZFS cache
 echo -e "\n${GRN}Setting ZFS cache...${NC}\n"
@@ -171,6 +160,9 @@ genfstab -U -p "${MNT}" >> "${MNT}"/etc/fstab
 # | grep -v swap \
 # | sed "s|vfat.*rw|vfat rw,x-systemd.idle-timeout=1min,x-systemd.automount,noauto,nofail|" \
 # > "${MNT}"/etc/fstab
+
+sed -i '/rpool/d' "${MNT}"/etc/fstab
+sed -i '/bpool/d' "${MNT}"/etc/fstab
 
 # # Chroot
 # for i in /dev /proc /sys; do mkdir -p "${MNT}"/"${i}"; mount --rbind "${i}" "${MNT}"/"${i}"; done
