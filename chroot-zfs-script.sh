@@ -39,7 +39,7 @@ mkinitcpio -P
 
 # For physical machine, install firmware
 
-pacman -S --noconfirm intel-ucode amd-ucode
+pacman -S --noconfirm nano micro ansible git intel-ucode amd-ucode
 
 # Enable services
 echo -e "\n${GRN}Enable services...${NC}\n"

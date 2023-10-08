@@ -179,7 +179,7 @@ genfstab -U -p "${MNT}" >> "${MNT}"/etc/fstab
 # Pacstrap packages to MNT
 echo -e "\n${GRN}Pacstrap packages to /mnt...${NC}\n"
 
-pacstrap "${MNT}" base base-devel linux linux-headers linux-firmware grub efibootmgr nano micro openssh ansible git
+pacstrap "${MNT}" base base-devel linux linux-headers linux-firmware grub efibootmgr openssh
 cp /etc/resolv.conf "${MNT}"/etc/resolv.conf
 
 echo -e "\n${GRN}Copy chroot-zfs-script to /mnt...${NC}\n"
