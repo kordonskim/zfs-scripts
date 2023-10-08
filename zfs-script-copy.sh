@@ -132,9 +132,10 @@ zfs mount rpool/archlinux/root
 # zfs create -o mountpoint=legacy rpool/archlinux/var/lib
 # zfs create -o mountpoint=legacy rpool/archlinux/var/log
 zfs create -o mountpoint=none bpool/archlinux
-zfs create -o mountpoint=legacy bpool/archlinux/root
-mkdir "${MNT}"/boot
-mount -t zfs bpool/archlinux/root "${MNT}"/boot
+zfs create -o mountpoint=/boot bpool/archlinux/root
+zfs mount bpool/archlinux/root
+# mkdir "${MNT}"/boot
+# mount -t zfs bpool/archlinux/root "${MNT}"/boot
 # mkdir -p "${MNT}"/var/log
 # mkdir -p "${MNT}"/var/lib
 # mount -t zfs rpool/archlinux/var/lib "${MNT}"/var/lib
