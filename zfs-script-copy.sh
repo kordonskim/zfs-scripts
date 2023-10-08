@@ -134,6 +134,7 @@ zfs mount rpool/archlinux/root
 zfs create -o mountpoint=none bpool/archlinux
 zfs create -o mountpoint=/boot bpool/archlinux/root
 zfs mount bpool/archlinux/root
+
 # mkdir "${MNT}"/boot
 # mount -t zfs bpool/archlinux/root "${MNT}"/boot
 # mkdir -p "${MNT}"/var/log
@@ -146,6 +147,7 @@ echo -e "\n${GRN}Setting ZFS cache...${NC}\n"
 
 mkdir -p  "${MNT}"/etc/zfs
 zpool set cachefile=/etc/zfs/zpool.cache rpool
+zpool set cachefile=/etc/zfs/zpool.cache bpool
 cp /etc/zfs/zpool.cache "${MNT}"/etc/zfs/zpool.cache
 
 # Format and mount ESP

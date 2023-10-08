@@ -51,6 +51,18 @@ sed -i 's|#PasswordAuthentication|PasswordAuthentication|' /etc/ssh/sshd_config
 systemctl enable systemd-timesyncd
 systemctl enable systemd-networkd
 systemctl enable sshd
+# https://wiki.archlinux.org/title/ZFS
+# needed fro pools to be automatically imported at boot time
+systemctl enable zfs-import-cache.service 
+systemctl enable zfs.target
+systemctl enable zfs-import.target
+# needed for mount at boot
+systemctl enable zfs-mount.service 
+
+# systemctl enable zfs-volume-wait.service
+# systemctl enable zfs-volumes.target
+# systemctl enable zfs-share.service
+# systemctl enable zfs-zed.service
 
 # Set hostname
 echo -e "\n${GRN}Set hostname...${NC}\n"
