@@ -131,6 +131,8 @@ zfs create -o mountpoint=/home rpool/archlinux/home
 zfs create -o mountpoint=none bpool/archlinux
 zfs create -o mountpoint=/boot bpool/archlinux/root
 
+zfs list
+
 # Setting ZFS cache
 echo -e "\n${GRN}Setting ZFS cache...${NC}\n"
 
