@@ -5,6 +5,9 @@ ORG='\033[0;33m'
 echo -e "\n${GRN}Adding ArchZFS repo to pacman...${NC}\n"
 
 echo -e '
+[zfs-linux]
+Server = http://kernels.archzfs.com/$repo/
+
 [archzfs]
 Server = https://archzfs.com/$repo/x86_64' >> /etc/pacman.conf
 
