@@ -24,7 +24,7 @@ mount -o remount,size=50% /run/archiso/cowspace
 # Setting variables
 echo -e "\n${GRN}Set variables...${NC}\n"
 
-DISK='/dev/sda' #'/dev/disk/by-id/ata-Hitachi_HDS5C3020BLE630_MCE7215P035WTN'
+DISK='/dev/disk/by-id/ata-PNY_CS900_240GB_SSD_PNY1119226329010AEDE' #'/dev/disk/by-id/ata-Hitachi_HDS5C3020BLE630_MCE7215P035WTN'
 MNT=/mnt
 SWAPSIZE=16
 RESERVE=1
