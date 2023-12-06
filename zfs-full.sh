@@ -1,3 +1,6 @@
+#!/bin/bash
+set -e
+
 # find /dev/disk/by-id/
 # mount -o remount,size=1G /run/archiso/cowspace    
 # wipefs -a /dev/disk/by-id/ata-Hitachi_HDS5C3020BLE630_MCE7215P035WTN
@@ -21,7 +24,7 @@ mount -o remount,size=50% /run/archiso/cowspace
 # Setting variables
 echo -e "\n${GRN}Set variables...${NC}\n"
 
-DISK='/dev/disk/by-id/ata-Hitachi_HDS5C3020BLE630_MCE7215P035WTN'
+DISK='/dev/sda' #'/dev/disk/by-id/ata-Hitachi_HDS5C3020BLE630_MCE7215P035WTN'
 MNT=/mnt
 SWAPSIZE=16
 RESERVE=1
