@@ -188,11 +188,14 @@ echo -e "\n${GRN}Cleanup...${NC}\n"
 
 rm /mnt/root/chroot-zfs-script.sh 
 
-echo -e "\n${BRED}Run swapoff -a${NC}"
-echo -e "\n${BRED}Run umount -Rl /mnt${NC}"
-echo -e "\n${BRED}Run zpool export -a${NC}"
-# swapoff -a
-# umount -Rl "${MNT}"
-# zpool export -a
+swapoff -a
+
+umount -Rl "${MNT}"
+
+zpool export -a
+
+lsblk -f
+
+zfs list
 
 echo -e "\n${GRN}Done...${NC}\n"
