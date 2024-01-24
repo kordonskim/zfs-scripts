@@ -40,7 +40,7 @@ echo -e "\n${GRN}Create partitions...${NC}\n"
 
 sgdisk -n1:0:+1M -t1:EF02 $DISK
 sgdisk -n2:1M:+2048M -t2:EF00 $DISK
-sgdisk -n3:2048:+$(DISK)G -t3:8200 $DISK
+sgdisk -n3:2048M:+$(DISK)G -t3:8200 $DISK
 sgdisk -n4:0:0 -t4:BF00 $DISK
 mkfs.vfat -v -F 32 -n EFI 
 
