@@ -3,6 +3,11 @@ https://gist.github.com/jimboy-701/18f89b58adf2c0fa25e20015b41f1f76
 DISK=/dev/nvme0n1
 DISK=/dev/sda
 
+echo -e "\n${GRN}Ceanup...${NC}\n"
+umount -Rl /mnt
+sudo swapoff /dev/sdb3
+sudo zpool export rpool
+
 sgdisk --zap-all $DISK
 sgdisk -n1:1M:+1024M -t1:EF00 $DISK
 sgdisk -n2:0:0 -t2:BF00 $DISK
