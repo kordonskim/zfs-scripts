@@ -37,11 +37,12 @@ sgdisk --zap-all $DISK
 # create partitions
 echo -e "\n${GRN}Create partitions...${NC}\n"
 
-sgdisk -n1:0:+2M -t1:EF02 $DISK
-sgdisk -n2:0:+2048M -t2:EF00 $DISK
-sgdisk -n3:0:+${SWAPSIZE}G -t3:8200 $DISK
-sgdisk -n4:0:0 -t4:BF00 $DISK
-mkfs.vfat -v -F 32 -n EFI ${DISK}3
+sgdisk -n 1:0:+2M -t 1:EF02 $DISK
+sgdisk -n 2:0:+2048M -t 2:EF00 $DISK
+sgdisk -n 3:0:+${SWAPSIZE}G -t 3:8200 $DISK
+sgdisk -n 4:0:0 -t 4:BF00 $DISK
+
+mkfs.vfat -v -F 32 -n "EFI" ${DISK}2
 
 # Swap setup
 echo -e "\n${GRN}Swap setup...${NC}\n"
@@ -103,7 +104,7 @@ zpool create \
     -O relatime=on \
     -O xattr=sa \
     -O mountpoint=/ \
-    rpool printf '%s ' "${DISK}4";
+    rpool ${DISK}4
 
 # Create system and user datasets
 echo -e "\n${GRN}Create system and user datasets...${NC}\n"
