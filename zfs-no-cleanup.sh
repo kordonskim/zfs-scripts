@@ -149,17 +149,17 @@ sed -i '/./,$!d' "${MNT}"/etc/fstab
 
 cat "${MNT}"/etc/fstab
 
-# # Pacstrap packages to MNT
-# echo -e "\n${GRN}Pacstrap packages to /mnt...${NC}\n"
+# Pacstrap packages to MNT
+echo -e "\n${GRN}Pacstrap packages to /mnt...${NC}\n"
 
-# pacstrap "${MNT}" base base-devel linux linux-headers linux-firmware grub efibootmgr openssh
-# cp /etc/resolv.conf "${MNT}"/etc/resolv.conf
+pacstrap "${MNT}" base base-devel linux linux-headers linux-firmware intel-ucode  efibootmgr man-db man-pages git neovim mc ripgrep fish starship sudo reflector openssh htop btop fzf wget terminus-font btrfs-progs
+cp /etc/resolv.conf "${MNT}"/etc/resolv.conf
 
-# echo -e "\n${GRN}Copy chroot-zfs-script to /mnt...${NC}\n"
+echo -e "\n${GRN}Copy chroot-zfs-script to /mnt...${NC}\n"
 
-# cp ./chroot-zfs-script.sh /mnt/root
+cp ./chroot-zfs-script.sh /mnt/root
 
-# echo -e "\n${BBLU}Run chroot-zfs-script...${NC}\n"
+echo -e "\n${BBLU}Run chroot-zfs-script...${NC}\n"
 
 # arch-chroot "${MNT}" /usr/bin/env DISK="${DISK}" sh /root/chroot-zfs-script.sh
 
