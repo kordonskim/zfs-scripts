@@ -120,13 +120,13 @@ zfs create -o mountpoint=/home rpool/archlinux/home
 
 zfs list
 
-# # Setting ZFS cache
-# echo -e "\n${GRN}Setting ZFS cache...${NC}\n"
+# Setting ZFS cache
+echo -e "\n${GRN}Setting ZFS cache...${NC}\n"
 
-# mkdir -p  "${MNT}"/etc/zfs
-# zpool set cachefile=/etc/zfs/zpool.cache rpool
-# zpool set cachefile=/etc/zfs/zpool.cache bpool
-# cp /etc/zfs/zpool.cache "${MNT}"/etc/zfs/zpool.cache
+mkdir -p  "${MNT}"/etc/zfs
+zpool set cachefile=/etc/zfs/zpool.cache rpool
+zpool set cachefile=/etc/zfs/zpool.cache bpool
+cp /etc/zfs/zpool.cache "${MNT}"/etc/zfs/zpool.cache
 
 # # Format and mount ESP
 # echo -e "\n${GRN}Format and mount ESP...${NC}\n"
