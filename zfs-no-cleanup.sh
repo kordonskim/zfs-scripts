@@ -29,7 +29,7 @@ MNT=/mnt
 SWAPSIZE=8
 RESERVE=1
 
-ech -e "Disk: {$DISK}, Mnt: {$MNT}, Swap: {$SWAPSIZE}"
+echo -e "Disk: {$DISK}, Mnt: {$MNT}, Swap: {$SWAPSIZE}"
 
 echo -e "\n${GRN}Wiping disk {$DISK}...${NC}\n"
 wipefs -a -f $DISK
