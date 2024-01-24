@@ -29,7 +29,7 @@ MNT=/mnt
 SWAPSIZE=8
 RESERVE=1
 
-echo -e "Disk: {$DISK}, Mnt: {$MNT}, Swap: {$SWAPSIZE}"
+echo -e "Disk: $DISK, Mnt: $MNT, Swap: $SWAPSIZE"
 
 echo -e "\n${GRN}Wiping disk {$DISK}...${NC}\n"
 wipefs -a -f $DISK
@@ -39,8 +39,8 @@ sgdisk --zap-all $DISK
 echo -e "\n${GRN}Create partitions...${NC}\n"
 
 sgdisk -n1:0:+1M -t1:EF02 $DISK
-sgdisk -n2:1M:+2048M -t2:EF00 $DISK
-sgdisk -n3:2048M:+$(DISK)G -t3:8200 $DISK
+sgdisk -n2:0:+2048M -t2:EF00 $DISK
+sgdisk -n3:0:+${DISK}G -t3:8200 $DISK
 sgdisk -n4:0:0 -t4:BF00 $DISK
 mkfs.vfat -v -F 32 -n EFI 
 
