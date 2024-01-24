@@ -27,7 +27,6 @@ echo -e "\n${GRN}Set variables...${NC}\n"
 DISK='/dev/sdb'
 MNT=/mnt
 SWAPSIZE=8
-RESERVE=1
 
 echo -e "Disk: $DISK, Mnt: $MNT, Swap: $SWAPSIZE"
 
@@ -38,11 +37,11 @@ sgdisk --zap-all $DISK
 # create partitions
 echo -e "\n${GRN}Create partitions...${NC}\n"
 
-sgdisk -n1:0:+1M -t1:EF02 $DISK
+sgdisk -n1:0:+2M -t1:EF02 $DISK
 sgdisk -n2:0:+2048M -t2:EF00 $DISK
 sgdisk -n3:0:+${SWAPSIZE}G -t3:8200 $DISK
 sgdisk -n4:0:0 -t4:BF00 $DISK
-mkfs.vfat -v -F 32 -n EFI 
+mkfs.vfat -v -F 32 -n EFI $DISK
 
 # Swap setup
 echo -e "\n${GRN}Swap setup...${NC}\n"
@@ -51,10 +50,10 @@ mkswap "${DISK}"3
 swapon "${DISK}"3
 
 
-# # Load ZFS kernel module
-# echo -e "\n${GRN}Load ZFS kernel module...${NC}\n"
+# Load ZFS kernel module
+echo -e "\n${GRN}Load ZFS kernel module...${NC}\n"
 
-# modprobe zfs
+modprobe zfs
 
 # # create zfs boot
 # echo -e "\n${GRN}Create bpool...${NC}\n"
@@ -88,40 +87,37 @@ swapon "${DISK}"3
 #        printf '%s ' "${i}-part3";
 #       done)
 
-# # create rpool      
-# echo -e "\n${GRN}Create rpool...${NC}\n"
+# create rpool      
+echo -e "\n${GRN}Create rpool...${NC}\n"
 
-# zpool create \
-#     -f \
-#     -o ashift=12 \
-#     -o autotrim=on \
-#     -R "${MNT}" \
-#     -O acltype=posixacl \
-#     -O canmount=off \
-#     -O compression=zstd \
-#     -O dnodesize=auto \
-#     -O normalization=formD \
-#     -O relatime=on \
-#     -O xattr=sa \
-#     -O mountpoint=/ \
-#     rpool \
-#    $(for i in ${DISK}; do
-#       printf '%s ' "${i}-part4";
-#      done)
+zpool create \
+    -f \
+    -o ashift=12 \
+    -o autotrim=on \
+    -R "${MNT}" \
+    -O acltype=posixacl \
+    -O canmount=off \
+    -O compression=zstd \
+    -O dnodesize=auto \
+    -O normalization=formD \
+    -O relatime=on \
+    -O xattr=sa \
+    -O mountpoint=/ \
+    rpool printf '%s ' "${DISK}4";
 
-# # Create system and user datasets
-# echo -e "\n${GRN}Create system and user datasets...${NC}\n"
+# Create system and user datasets
+echo -e "\n${GRN}Create system and user datasets...${NC}\n"
 
-# zfs create -o canmount=off -o mountpoint=none rpool/archlinux     
-# zfs create -o canmount=noauto -o mountpoint=/  rpool/archlinux/root
-# zfs mount rpool/archlinux/root
+zfs create -o canmount=off -o mountpoint=none rpool/archlinux     
+zfs create -o canmount=noauto -o mountpoint=/  rpool/archlinux/root
+zfs mount rpool/archlinux/root
 
-# zfs create -o mountpoint=/home rpool/archlinux/home
+zfs create -o mountpoint=/home rpool/archlinux/home
 
 # zfs create -o mountpoint=none bpool/archlinux
 # zfs create -o mountpoint=/boot bpool/archlinux/root
 
-# zfs list
+zfs list
 
 # # Setting ZFS cache
 # echo -e "\n${GRN}Setting ZFS cache...${NC}\n"
