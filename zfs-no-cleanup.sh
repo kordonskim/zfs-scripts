@@ -152,7 +152,7 @@ cat "${MNT}"/etc/fstab
 # Pacstrap packages to MNT
 echo -e "\n${GRN}Pacstrap packages to /mnt...${NC}\n"
 
-pacstrap "${MNT}" base base-devel linux linux-headers linux-firmware intel-ucode  efibootmgr man-db man-pages git neovim mc ripgrep fish starship sudo reflector openssh htop btop fzf wget terminus-font btrfs-progs
+pacstrap "${MNT}" base base-devel linux linux-headers linux-firmware intel-ucode  efibootmgr openssh
 cp /etc/resolv.conf "${MNT}"/etc/resolv.conf
 
 echo -e "\n${GRN}Copy chroot-zfs-script to /mnt...${NC}\n"

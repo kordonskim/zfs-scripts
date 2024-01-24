@@ -39,7 +39,7 @@ mkinitcpio -P
 
 # For physical machine, install firmware
 
-pacman -S --noconfirm nano micro ansible git intel-ucode amd-ucode
+pacman -S --noconfirm nano micro ansible git intel-ucode amd-ucode man-db man-pages git neovim mc ripgrep fish starship sudo reflector htop btop fzf wget terminus-font btrfs-progs
 
 # Enable services
 echo -e "\n${GRN}Enable services...${NC}\n"
