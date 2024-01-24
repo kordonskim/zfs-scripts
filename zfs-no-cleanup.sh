@@ -41,7 +41,7 @@ sgdisk -n1:0:+2M -t1:EF02 $DISK
 sgdisk -n2:0:+2048M -t2:EF00 $DISK
 sgdisk -n3:0:+${SWAPSIZE}G -t3:8200 $DISK
 sgdisk -n4:0:0 -t4:BF00 $DISK
-mkfs.vfat -v -F 32 -n EFI $DISK
+mkfs.vfat -v -F 32 -n EFI ${DISK}3
 
 # Swap setup
 echo -e "\n${GRN}Swap setup...${NC}\n"
