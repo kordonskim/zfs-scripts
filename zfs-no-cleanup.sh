@@ -42,8 +42,6 @@ sgdisk -n 2:0:+2048M -t 2:EF00 $DISK
 sgdisk -n 3:0:+${SWAPSIZE}G -t 3:8200 $DISK
 sgdisk -n 4:0:0 -t 4:BF00 $DISK
 
-mkfs.vfat -v -F 32 -n "EFI" ${DISK}2
-
 # Swap setup
 echo -e "\n${GRN}Swap setup...${NC}\n"
 
@@ -125,34 +123,31 @@ echo -e "\n${GRN}Setting ZFS cache...${NC}\n"
 
 mkdir -p  "${MNT}"/etc/zfs
 zpool set cachefile=/etc/zfs/zpool.cache rpool
-zpool set cachefile=/etc/zfs/zpool.cache bpool
+# zpool set cachefile=/etc/zfs/zpool.cache bpool
 cp /etc/zfs/zpool.cache "${MNT}"/etc/zfs/zpool.cache
 
 # # Format and mount ESP
-# echo -e "\n${GRN}Format and mount ESP...${NC}\n"
+echo -e "\n${GRN}Format and mount ESP...${NC}\n"
 
-# for i in ${DISK}; do
-#  mkfs.vfat -n EFI "${i}"-part2
-#  mkdir -p "${MNT}"/boot/efis/"${i##*/}"-part2
-#  mount -t vfat -o iocharset=iso8859-1 "${i}"-part2 "${MNT}"/boot/efis/"${i##*/}"-part2
-# done
+mkfs.vfat -v -F 32 -n "EFI" ${DISK}2
 
-# mkdir -p "${MNT}"/boot/efi
-# mount -t vfat -o iocharset=iso8859-1 "$(echo "${DISK}" | sed "s|^ *||"  | cut -f1 -d' '|| true)"-part2 "${MNT}"/boot/efi
+mkdir -p "${MNT}"/boot/efi/EFI
+mount -t vfat -o iocharset=iso8859-1 ${DISK}2 ${MNT}/boot
 
-# # Generate fstab:
-# echo -e "\n${GRN}Generate fstab...${NC}\n"
+# Generate fstab:
+echo -e "\n${GRN}Generate fstab...${NC}\n"
 
-# # mkdir "${MNT}"/etc
-# genfstab -U -p "${MNT}" >> "${MNT}"/etc/fstab
+# mkdir "${MNT}"/etc
+genfstab -U -p "${MNT}" >> "${MNT}"/etc/fstab
 
-# # remove rpool and bpool mounts form fstab
-# sed -i '/rpool/d' "${MNT}"/etc/fstab
+# remove rpool and bpool mounts form fstab
+sed -i '/rpool/d' "${MNT}"/etc/fstab
 # sed -i '/bpool/d' "${MNT}"/etc/fstab
-# # remove first empty lines from fstab
-# sed -i '/./,$!d' "${MNT}"/etc/fstab
 
-# cat "${MNT}"/etc/fstab
+# remove first empty lines from fstab
+sed -i '/./,$!d' "${MNT}"/etc/fstab
+
+cat "${MNT}"/etc/fstab
 
 # # Pacstrap packages to MNT
 # echo -e "\n${GRN}Pacstrap packages to /mnt...${NC}\n"

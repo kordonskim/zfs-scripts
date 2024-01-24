@@ -4,8 +4,8 @@ DISK=/dev/nvme0n1
 DISK=/dev/sda
 
 echo -e "\n${GRN}Ceanup...${NC}\n"
-umount -Rl /mnt
-sudo swapoff /dev/sdb3
+sudo umount -Rl /mnt \
+sudo swapoff /dev/sdb3 \
 sudo zpool export rpool
 
 sgdisk --zap-all $DISK
