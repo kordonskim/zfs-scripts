@@ -11,6 +11,12 @@ NC='\033[0m'
 BBLU='\033[1;34m'
 BRED='\033[1;31m'
 
+echo -e "\n${GRN}Ceanup...${NC}\n"
+umount /mnt
+swapoff /dev/sdb3
+zpool export rpool
+
+
 # Adding zfs packages
 # echo -e "\n${GRN}Adding zfs packages...${NC}\n"
 
