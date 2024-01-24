@@ -23,10 +23,7 @@ echo -e "\n${GRN}Install base packages...${NC}\n"
 
 sed -i 's|fsck||' /etc/mkinitcpio.conf
 pacman -Sy
-kernel_compatible_with_zfs="$(pacman -Si zfs-linux \
-| grep 'Depends On' \
-| sed "s|.*linux=||" \
-| awk '{ print $1 }')" 
+kernel_compatible_with_zfs="$(pacman -Si zfs-linux | grep 'Depends On' | sed "s|.*linux=||" | awk '{ print $1 }')" 
 pacman -U --noconfirm https://america.archive.pkgbuild.com/packages/l/linux/linux-"${kernel_compatible_with_zfs}"-x86_64.pkg.tar.zst
 
 # Install zfs packages
@@ -53,6 +50,7 @@ sed -i 's|#PasswordAuthentication|PasswordAuthentication|' /etc/ssh/sshd_config
 
 systemctl enable systemd-timesyncd
 systemctl enable systemd-networkd
+systemctl enable systemd-resolved
 systemctl enable sshd
 # https://wiki.archlinux.org/title/ZFS
 # needed fro pools to be automatically imported at boot time

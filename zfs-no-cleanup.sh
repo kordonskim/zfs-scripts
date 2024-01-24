@@ -184,6 +184,7 @@ echo -e "\n${BBLU}Run chroot-zfs-script...${NC}\n"
 
 arch-chroot "${MNT}" /usr/bin/env DISK="${DISK}" sh /root/chroot-zfs-script.sh
 
+# Cleanup
 echo -e "\n${GRN}Cleanup...${NC}\n"
 
 rm /mnt/root/chroot-zfs-script.sh 
