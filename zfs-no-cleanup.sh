@@ -12,7 +12,7 @@ BBLU='\033[1;34m'
 BRED='\033[1;31m'
 
 echo -e "\n${GRN}Ceanup...${NC}\n"
-umount /mnt
+umount -Rl /mnt
 swapoff /dev/sdb3
 zpool export rpool
 
