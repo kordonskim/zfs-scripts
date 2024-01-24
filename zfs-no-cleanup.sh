@@ -109,9 +109,9 @@ zpool create \
 # Create system and user datasets
 echo -e "\n${GRN}Create system and user datasets...${NC}\n"
 
-zfs create -o canmount=off -o mountpoint=none rpool/archlinux     
-zfs create -o canmount=noauto -o mountpoint=/  rpool/archlinux/root
-zfs mount rpool/archlinux/root
+zfs create -o canmount=noauto -o mountpoint=/ rpool/archlinux     
+# zfs create -o canmount=noauto -o mountpoint=/  rpool/archlinux/root
+zfs mount rpool/archlinux
 
 zfs create -o mountpoint=/home rpool/archlinux/home
 
