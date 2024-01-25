@@ -26,6 +26,8 @@ pacman -Sy
 kernel_compatible_with_zfs="$(pacman -Si zfs-linux | grep 'Depends On' | sed "s|.*linux=||" | awk '{ print $1 }')" 
 pacman -U --noconfirm https://america.archive.pkgbuild.com/packages/l/linux/linux-"${kernel_compatible_with_zfs}"-x86_64.pkg.tar.zst
 
+
+
 # Install zfs packages
 echo -e "\n${GRN}Install zfs packages...${NC}\n"
 
@@ -39,7 +41,7 @@ mkinitcpio -P
 
 # For physical machine, install firmware
 
-pacman -S --noconfirm nano micro ansible git intel-ucode amd-ucode man-db man-pages git neovim mc ripgrep fish starship sudo reflector htop btop fzf wget terminus-font btrfs-progs
+pacman -S --noconfirm nano limine micro ansible git man-db man-pages neovim mc ripgrep fish starship sudo reflector htop btop fzf wget terminus-font btrfs-progs
 
 # Enable services
 echo -e "\n${GRN}Enable services...${NC}\n"
@@ -52,13 +54,13 @@ systemctl enable systemd-timesyncd
 systemctl enable systemd-networkd
 systemctl enable systemd-resolved
 systemctl enable sshd
+sudo systemctl enable reflector.timer
 # https://wiki.archlinux.org/title/ZFS
 # needed fro pools to be automatically imported at boot time
-systemctl enable zfs-import-cache.service 
-systemctl enable zfs.target
+systemctl enable zfs-import-cache
 systemctl enable zfs-import.target
-# needed for mount at boot
-systemctl enable zfs-mount.service 
+systemctl enable zfs.target
+systemctl enable zfs-mount
 
 # systemctl enable zfs-volume-wait.service
 # systemctl enable zfs-volumes.target
@@ -76,55 +78,79 @@ echo -e '127.0.0.1 localhost\n::1 localhost\n127.0.1.1 arch' >> /etc/hosts
 echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen
 locale-gen
 
-# GRUB
-# Apply GRUB workaround
-echo -e "\n${GRN}Apply GRUB workaround...${NC}\n"
+sudo ln -sf /usr/share/zoneinfo/America/Chicago /etc/localtime
 
-export ZPOOL_VDEV_NAME_PATH=YES
+# Edit
+echo -e "\n${GRN}Edit sudoers...${NC}\n"
 
-# GRUB fails to detect rpool name, hard code as "rpool"
-sed -i "s|rpool=.*|rpool=rpool|" /etc/grub.d/10_linux
+sed -i 's|# %wheel|%wheel|' /etc/sudoers
 
-# Install GRUB
-echo -e "\n${GRN}Install GRUB...${NC}\n"
+# # GRUB -----------------------------------------------------------
+# # Apply GRUB workaround
+# echo -e "\n${GRN}Apply GRUB workaround...${NC}\n"
 
-mkdir -p /boot/efi/archlinux/grub-bootdir/i386-pc/
-mkdir -p /boot/efi/archlinux/grub-bootdir/x86_64-efi/
-for i in ${DISK}; do
- grub-install --target=i386-pc --boot-directory /boot/efi/archlinux/grub-bootdir/i386-pc/  "${i}"
-done
-grub-install --target x86_64-efi --boot-directory /boot/efi/archlinux/grub-bootdir/x86_64-efi/ --efi-directory /boot/efi --bootloader-id archlinux --removable
-if test -d /sys/firmware/efi/efivars/; then
-   grub-install --target x86_64-efi --boot-directory /boot/efi/archlinux/grub-bootdir/x86_64-efi/ --efi-directory /boot/efi --bootloader-id archlinux
-fi
+# export ZPOOL_VDEV_NAME_PATH=YES
 
-# Import both bpool and rpool at boot:
+# # GRUB fails to detect rpool name, hard code as "rpool"
+# sed -i "s|rpool=.*|rpool=rpool|" /etc/grub.d/10_linux
 
-echo 'GRUB_CMDLINE_LINUX="zfs_import_dir=/dev/"' >> /etc/default/grub
-sed -i "s|loglevel=3 quiet|loglevel=3|" /etc/default/grub
+# # Import both bpool and rpool at boot:
 
-# Generate GRUB menu
-echo -e "\n${GRN}Generate GRUB menu...${NC}\n"
+# echo 'GRUB_CMDLINE_LINUX="zfs_import_dir=/dev/"' >> /etc/default/grub
+# sed -i "s|loglevel=3 quiet|loglevel=3|" /etc/default/grub
 
-mkdir -p /boot/grub
-grub-mkconfig -o /boot/grub/grub.cfg
-cp /boot/grub/grub.cfg /boot/efi/archlinux/grub-bootdir/x86_64-efi/grub/grub.cfg
-cp /boot/grub/grub.cfg /boot/efi/archlinux/grub-bootdir/i386-pc/grub/grub.cfg
+# # Generate GRUB menu
+# echo -e "\n${GRN}Generate GRUB menu...${NC}\n"
+# -----------------------------------------------------------------
 
-# For both legacy and EFI booting: mirror ESP content:
+# Limine bootloader - BIOS
+echo -e "\n${GRN}Limine bootloader - BIOS...${NC}\n"
 
-espdir=$(mktemp -d)
-find /boot/efi/ -maxdepth 1 -mindepth 1 -type d -print0 | xargs -t -0I '{}' cp -r '{}' "${espdir}"
-find "${espdir}" -maxdepth 1 -mindepth 1 -type d -print0 | xargs -t -0I '{}' sh -vxc "find /boot/efis/ -maxdepth 1 -mindepth 1 -type d -print0 | xargs -t -0I '[]' cp -r '{}' '[]'"
+mkdir /boot/limine
+cp /usr/share/limine/limine-bios.sys /boot/limine
+limine bios-install $DISK
+echo -e '
+TIMEOUT=3
+VERBOSE=yes
+DEFAULT_ENTRY=1
+GRAPHICS=yes
+RESOLUTION=800x600
+TERM_WALLPAPER=boot:///arch.jpg
+
+:Arch Linux
+   PROTOCOL=limine
+   KERNEL_PATH=boot:///vmlinuz-linux
+   CMDLINE=root=ZFS=rpool/archlinux rw  loglevel=3 zfs_import_dir=/dev/
+   MODULE_PATH=boot:///intel-ucode.img
+   MODULE_PATH=boot:///initramfs-linux.img
+      ' > /boot/limine/limine.cfg
+
+# Limine bootloader - EFI
+echo -e "\n${GRN}Limine bootloader - EFI...${NC}\n"
+
+mkdir -p /boot/efi/EFI
+cp /usr/share/limine/BOOTX64.EFI /boot/efi/EFI
 
 # Adding user 
 echo -e "\n${GRN}Adding user mk...${NC}\n"
 
 # groupadd sudo
-useradd -m -G root,wheel mk
+useradd -m -G root,users,sudo,sys,adm,log,scanner,power,rfkill,video,storage,optical,lp,audio,wheel mk
 
 echo -e "\n${ORG}Changing password for mk:${NC}\n"
 passwd mk
 echo -e "\n${ORG}Changing password for root:${NC}\n"
 passwd root
+
+# Install yay
+echo -e "\n${GRN}Install yay...${NC}\n"
+
+su mk
+cd
+mkdir repo
+cd repo
+sudo pacman -Syy
+git clone https://aur.archlinux.org/yay.git
+cd yay
+makepkg -si
 

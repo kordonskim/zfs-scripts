@@ -152,7 +152,7 @@ cat "${MNT}"/etc/fstab
 # Pacstrap packages to MNT
 echo -e "\n${GRN}Pacstrap packages to /mnt...${NC}\n"
 
-pacstrap "${MNT}" base base-devel linux linux-headers linux-firmware intel-ucode  efibootmgr openssh
+pacstrap "${MNT}" base base-devel linux linux-headers linux-firmware intel-ucode amd-ucode efibootmgr openssh
 cp /etc/resolv.conf "${MNT}"/etc/resolv.conf
 
 echo -e "\n${GRN}Copy chroot-zfs-script to /mnt...${NC}\n"
@@ -161,18 +161,18 @@ cp ./chroot-zfs-script.sh /mnt/root
 
 echo -e "\n${BBLU}Run chroot-zfs-script...${NC}\n"
 
-# arch-chroot "${MNT}" /usr/bin/env DISK="${DISK}" sh /root/chroot-zfs-script.sh
+arch-chroot "${MNT}" /usr/bin/env DISK="${DISK}" sh /root/chroot-zfs-script.sh
 
-# # Cleanup
-# echo -e "\n${GRN}Cleanup...${NC}\n"
+# Cleanup
+echo -e "\n${GRN}Cleanup...${NC}\n"
 
-# rm /mnt/root/chroot-zfs-script.sh 
+rm /mnt/root/chroot-zfs-script.sh 
 
-# echo -e "\n${BRED}Run swapoff -a${NC}"
-# echo -e "\n${BRED}Run umount -Rl /mnt${NC}"
-# echo -e "\n${BRED}Run zpool export -a${NC}"
-# # swapoff -a
-# # umount -Rl "${MNT}"
-# # zpool export -a
+echo -e "\n${BRED}Run swapoff -a${NC}"
+echo -e "\n${BRED}Run umount -Rl /mnt${NC}"
+echo -e "\n${BRED}Run zpool export -a${NC}"
+# swapoff -a
+# umount -Rl "${MNT}"
+# zpool export -a
 
 echo -e "\n${GRN}Done...${NC}\n"
