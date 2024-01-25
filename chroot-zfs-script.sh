@@ -135,7 +135,7 @@ cp /usr/share/limine/BOOTX64.EFI /boot/efi/EFI
 echo -e "\n${GRN}Adding user mk...${NC}\n"
 
 # groupadd sudo
-useradd -m -G root,users,sudo,sys,adm,log,scanner,power,rfkill,video,storage,optical,lp,audio,wheel mk
+useradd -m -G root,users,sys,adm,log,scanner,power,rfkill,video,storage,optical,lp,audio,wheel mk
 
 echo -e "\n${ORG}Changing password for mk:${NC}\n"
 passwd mk
