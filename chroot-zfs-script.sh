@@ -63,7 +63,8 @@ mkdir -p  /etc/zfs
 zpool set cachefile=/etc/zfs/zpool.cache zroot
 zpool set bootfs=zroot/ROOT/arch zroot
 
-# For physical machine, install firmware
+# Install additional packages
+echo -e "\n${GRN}Install additional packages...${NC}\n"
 
 pacman -S --noconfirm intel-ucode amd-ucode nano limine micro mc wget ansible git man-db man-pages neovim mc ripgrep fish starship sudo reflector htop btop fzf wget terminus-font btrfs-progs
 
