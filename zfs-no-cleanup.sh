@@ -139,6 +139,11 @@ mkfs.vfat -v -F 32 -n "EFI" $DISKEFI
 mkdir -p "${MNT}"/efi
 mount -t vfat -o iocharset=iso8859-1 $DISKEFI ${MNT}/efi
 
+# Pacstrap packages to MNT
+echo -e "\n${GRN}Pacstrap packages to ${MNT}...${NC}\n"
+
+pacstrap "${MNT}" base base-devel linux linux-headers linux-firmware efibootmgr openssh
+
 # Generate fstab:
 echo -e "\n${GRN}Generate fstab...${NC}\n"
 
@@ -161,11 +166,6 @@ echo -e "\n${GRN}Copy local files to ${MNT}...${NC}\n"
 cp /etc/hostid "${MNT}"/etc
 cp /etc/resolv.conf "${MNT}"/etc/resolv.conf
 cp /etc/pacman.conf "${MNT}"/etc/pacman.conf
-
-# Pacstrap packages to MNT
-echo -e "\n${GRN}Pacstrap packages to ${MNT}...${NC}\n"
-
-pacstrap "${MNT}" base base-devel linux linux-headers linux-firmware efibootmgr openssh
 
 # Copy chroot-zfs-script to /mnt
 echo -e "\n${GRN}Copy chroot-zfs-script to ${MNT}...${NC}\n"
