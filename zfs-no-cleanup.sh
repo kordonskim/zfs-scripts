@@ -116,11 +116,9 @@ zpool create \
 echo -e "\n${GRN}Create system and user datasets...${NC}\n"
 
 zfs create -o mountpoint=none zroot/ROOT
-zfs create -o canmount=noauto -o mountpoint=/ zroot/ROOT/arch     
-# zfs create -o canmount=noauto -o mountpoint=/  rpool/archlinux/root
-zfs mount zroot/ROOT/archlinux
-
+zfs create -o canmount=noauto -o mountpoint=/ zroot/ROOT/arch
 zfs create -o mountpoint=/home zroot/home
+# zfs create -o canmount=noauto -o mountpoint=/  rpool/archlinux/root
 
 zpool export zroot
 zpool import -N -R /mnt zroot
