@@ -110,7 +110,7 @@ zpool create \
     -O relatime=on \
     -O xattr=sa \
     -O mountpoint=/ \
-    rpool $DISKROOT
+    zroot $DISKROOT
 
 # Create system and user datasets
 echo -e "\n${GRN}Create system and user datasets...${NC}\n"
