@@ -65,7 +65,7 @@ zpool set bootfs=zroot/ROOT/arch zroot
 
 # For physical machine, install firmware
 
-pacman -S --noconfirm intel-ucode amd-ucode nano limine zfsbootmenu micro ansible git man-db man-pages neovim mc ripgrep fish starship sudo reflector htop btop fzf wget terminus-font btrfs-progs
+pacman -S --noconfirm intel-ucode amd-ucode nano limine micro mc wget ansible git man-db man-pages neovim mc ripgrep fish starship sudo reflector htop btop fzf wget terminus-font btrfs-progs
 
 # Enable services
 echo -e "\n${GRN}Enable services...${NC}\n"
@@ -78,7 +78,7 @@ systemctl enable systemd-timesyncd
 systemctl enable systemd-networkd
 systemctl enable systemd-resolved
 systemctl enable sshd
-sudo systemctl enable reflector.timer
+systemctl enable reflector.timer
 # https://wiki.archlinux.org/title/ZFS
 # needed fro pools to be automatically imported at boot time
 systemctl enable zfs-import-cache
@@ -117,6 +117,7 @@ sed -i 's|# %wheel|%wheel|' /etc/sudoers
 # Limine bootloader 
 echo -e "\n${GRN}Limine bootloader ...${NC}\n"
 
+mkdir -p /efi/EFI/limine
 mkdir /efi/limine
 #cp /usr/share/limine/limine-bios.sys /boot/limine
 #limine bios-install $DISK
@@ -136,8 +137,8 @@ TERM_WALLPAPER=boot:///arch.jpg
    MODULE_PATH=boot:///initramfs-linux.img
       ' > /efi/limine/limine.cfg
 
-mkdir -p /efi/EFI
-cp /usr/share/limine/BOOTX64.EFI /efi/EFI
+cp /usr/share/limine/BOOTX64.EFI /efi/EFI/limine/
+ efibootmgr --create --disk $DISK --part 1 --loader '\EFI\limine\BOOTX64.EFI' --label 'Limine' --unicode
 
 # ZFSBootMenu bootloader 
 echo -e "\n${GRN}ZFSBootMenu bootloader  bootloader ...${NC}\n"

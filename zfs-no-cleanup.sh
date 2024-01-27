@@ -137,7 +137,7 @@ echo -e "\n${GRN}Format and mount ESP...${NC}\n"
 mkfs.vfat -v -F 32 -n "EFI" $DISKEFI
 
 mkdir -p "${MNT}"/efi
-mount -t vfat -o iocharset=iso8859-1 $DISKEFI ${MNT}/efi
+mount $DISKEFI ${MNT}/efi
 
 # Pacstrap packages to MNT
 echo -e "\n${GRN}Pacstrap packages to ${MNT}...${NC}\n"
