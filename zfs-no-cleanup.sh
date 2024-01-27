@@ -24,7 +24,10 @@ BRED='\033[1;31m'
 # Setting variables
 echo -e "\n${GRN}Set variables...${NC}\n"
 
-DISK='/dev/sdb'
+DISK='/dev/sda'
+DISKEFI='/dev/sda1'
+DISKSWAP='/dev/sda2'
+DISKROOT='/dev/sda3'
 MNT=/mnt
 SWAPSIZE=8
 
@@ -34,19 +37,24 @@ echo -e "\n${GRN}Wiping disk {$DISK}...${NC}\n"
 wipefs -a -f $DISK
 sgdisk --zap-all $DISK
 
-# create partitions
+# Generate hostid
+echo -e "\n${GRN}Generate hostid...${NC}\n"
+
+zgenhostid -f -o /etc/hostid
+
+# Create partitions
 echo -e "\n${GRN}Create partitions...${NC}\n"
 
-sgdisk -n 1:0:+2M -t 1:EF02 $DISK
-sgdisk -n 2:0:+2048M -t 2:EF00 $DISK
-sgdisk -n 3:0:+${SWAPSIZE}G -t 3:8200 $DISK
-sgdisk -n 4:0:0 -t 4:BF00 $DISK
+# sgdisk -n 1:0:+2M -t 1:EF02 $DISK
+sgdisk -n 1:0:+2048M -t 2:EF00 $DISK
+sgdisk -n 2:0:+${SWAPSIZE}G -t 3:8200 $DISK
+sgdisk -n 3:0:900G -t 4:BF00 $DISK
 
 # Swap setup
 echo -e "\n${GRN}Swap setup...${NC}\n"
 
-mkswap "${DISK}"3
-swapon "${DISK}"3
+mkswap $DISKSWAP
+swapon $DISKSWAP
 
 
 # Load ZFS kernel module
@@ -102,63 +110,70 @@ zpool create \
     -O relatime=on \
     -O xattr=sa \
     -O mountpoint=/ \
-    rpool ${DISK}4
+    rpool $DISKROOT
 
 # Create system and user datasets
 echo -e "\n${GRN}Create system and user datasets...${NC}\n"
 
-zfs create -o canmount=noauto -o mountpoint=/ rpool/archlinux     
+zfs create -o canmount=noauto -o mountpoint=/ zroot/ROOT/arch     
 # zfs create -o canmount=noauto -o mountpoint=/  rpool/archlinux/root
-zfs mount rpool/archlinux
+zfs mount zroot/ROOT/archlinux
 
-zfs create -o mountpoint=/home rpool/archlinux/home
+zfs create -o mountpoint=/home zroot/home
+
+zpool export zroot
+zpool import -N -R /mnt zroot
+# zfs load-key -L prompt zroot # Enter your pool passphrase after that command
+zfs mount zroot/ROOT/arch
+zfs mount zroot/home
 
 # zfs create -o mountpoint=none bpool/archlinux
 # zfs create -o mountpoint=/boot bpool/archlinux/root
 
 zfs list
 
-# Setting ZFS cache
-echo -e "\n${GRN}Setting ZFS cache...${NC}\n"
-
-mkdir -p  "${MNT}"/etc/zfs
-zpool set cachefile=/etc/zfs/zpool.cache rpool
-# zpool set cachefile=/etc/zfs/zpool.cache bpool
-cp /etc/zfs/zpool.cache "${MNT}"/etc/zfs/zpool.cache
-
-# # Format and mount ESP
+# Format and mount ESP
 echo -e "\n${GRN}Format and mount ESP...${NC}\n"
 
-mkfs.vfat -v -F 32 -n "EFI" ${DISK}2
+mkfs.vfat -v -F 32 -n "EFI" $DISKEFI
 
-mkdir -p "${MNT}"/boot/efi/EFI
-mount -t vfat -o iocharset=iso8859-1 ${DISK}2 ${MNT}/boot
+mkdir -p "${MNT}"/efi
+mount -t vfat -o iocharset=iso8859-1 $DISKEFI ${MNT}/efi
 
 # Generate fstab:
 echo -e "\n${GRN}Generate fstab...${NC}\n"
 
-# mkdir "${MNT}"/etc
+    # mkdir "${MNT}"/etc
 genfstab -U -p "${MNT}" >> "${MNT}"/etc/fstab
 
 # remove rpool and bpool mounts form fstab
-sed -i '/rpool/d' "${MNT}"/etc/fstab
-# sed -i '/bpool/d' "${MNT}"/etc/fstab
+sed -i '/zroot/d' "${MNT}"/etc/fstab
+    # sed -i '/bpool/d' "${MNT}"/etc/fstab
 
 # remove first empty lines from fstab
 sed -i '/./,$!d' "${MNT}"/etc/fstab
 
 cat "${MNT}"/etc/fstab
 
-# Pacstrap packages to MNT
-echo -e "\n${GRN}Pacstrap packages to /mnt...${NC}\n"
 
-pacstrap "${MNT}" base base-devel linux linux-headers linux-firmware intel-ucode amd-ucode efibootmgr openssh
+# Copy local files to /mnt
+echo -e "\n${GRN}Copy local files to ${MNT}...${NC}\n"
+
+cp /etc/hostid "${MNT}"/etc
 cp /etc/resolv.conf "${MNT}"/etc/resolv.conf
+cp /etc/pacman.conf "${MNT}"/etc/pacman.conf
 
-echo -e "\n${GRN}Copy chroot-zfs-script to /mnt...${NC}\n"
+# Pacstrap packages to MNT
+echo -e "\n${GRN}Pacstrap packages to ${MNT}...${NC}\n"
+
+pacstrap "${MNT}" base base-devel linux linux-headers linux-firmware efibootmgr openssh
+
+# Copy chroot-zfs-script to /mnt
+echo -e "\n${GRN}Copy chroot-zfs-script to ${MNT}...${NC}\n"
 
 cp ./chroot-zfs-script.sh /mnt/root
 
+# Run chroot-zfs-script
 echo -e "\n${BBLU}Run chroot-zfs-script...${NC}\n"
 
 arch-chroot "${MNT}" /usr/bin/env DISK="${DISK}" sh /root/chroot-zfs-script.sh

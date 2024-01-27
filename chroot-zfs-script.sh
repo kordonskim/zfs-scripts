@@ -2,6 +2,25 @@ GRN='\033[0;32m'
 NC='\033[0m'
 ORG='\033[0;33m'
 
+# Set hostname
+echo -e "\n${GRN}Set hostname...${NC}\n"
+
+echo arch > /etc/hostname
+echo -e '127.0.0.1 localhost\n::1 localhost\n127.0.1.1 arch' >> /etc/hosts
+
+zgenhostid -f -o /etc/hostid
+
+# Generate locales:
+echo -e "\n${GRN}Set hostname...${NC}\n"
+
+echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen
+locale-gen
+echo 'LANG=en_US.UTF-8' > /etc/locale.conf
+
+sudo ln -sf /usr/share/zoneinfo/America/Chicago /etc/localtime
+hwclock --systohc
+
+# Adding ArchZFS repo to pacman
 echo -e "\n${GRN}Adding ArchZFS repo to pacman...${NC}\n"
 
 echo -e '
@@ -26,8 +45,6 @@ pacman -Sy
 kernel_compatible_with_zfs="$(pacman -Si zfs-linux | grep 'Depends On' | sed "s|.*linux=||" | awk '{ print $1 }')" 
 pacman -U --noconfirm https://america.archive.pkgbuild.com/packages/l/linux/linux-"${kernel_compatible_with_zfs}"-x86_64.pkg.tar.zst
 
-
-
 # Install zfs packages
 echo -e "\n${GRN}Install zfs packages...${NC}\n"
 
@@ -39,15 +56,22 @@ echo -e "\n${GRN}Configure mkinitcpio...${NC}\n"
 sed -i 's|filesystems|zfs filesystems|' /etc/mkinitcpio.conf
 mkinitcpio -P
 
+# Setting ZFS cache
+echo -e "\n${GRN}Setting ZFS cache and bootfs...${NC}\n"
+
+mkdir -p  /etc/zfs
+zpool set cachefile=/etc/zfs/zpool.cache zroot
+zpool set bootfs=zroot/ROOT/arch zroot
+
 # For physical machine, install firmware
 
-pacman -S --noconfirm nano limine micro ansible git man-db man-pages neovim mc ripgrep fish starship sudo reflector htop btop fzf wget terminus-font btrfs-progs
+pacman -S --noconfirm intel-ucode amd-ucode nano limine zfsbootmenu micro ansible git man-db man-pages neovim mc ripgrep fish starship sudo reflector htop btop fzf wget terminus-font btrfs-progs
 
 # Enable services
 echo -e "\n${GRN}Enable services...${NC}\n"
 
-echo -e "[Match]\nName=eno*\n\n[Network]\nDHCP=yes" > /etc/systemd/network/20-wired.network
-echo -e "\nnameserver 1.1.1.1\nnameserver 9.9.9.9" >> /etc/resolv.conf
+echo -e "[Match]\nName=eno*\n\n[Network]\nDHCP=yes" > /etc/systemd/network/en.network
+#echo -e "\nnameserver 1.1.1.1\nnameserver 9.9.9.9" >> /etc/resolv.conf
 sed -i 's|#PasswordAuthentication|PasswordAuthentication|' /etc/ssh/sshd_config
 
 systemctl enable systemd-timesyncd
@@ -67,20 +91,7 @@ systemctl enable zfs-mount
 # systemctl enable zfs-share.service
 # systemctl enable zfs-zed.service
 
-# Set hostname
-echo -e "\n${GRN}Set hostname...${NC}\n"
-
-echo arch > /etc/hostname
-echo -e '127.0.0.1 localhost\n::1 localhost\n127.0.1.1 arch' >> /etc/hosts
-
-# Generate locales:
-
-echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen
-locale-gen
-
-sudo ln -sf /usr/share/zoneinfo/America/Chicago /etc/localtime
-
-# Edit
+# Edit sudoers
 echo -e "\n${GRN}Edit sudoers...${NC}\n"
 
 sed -i 's|# %wheel|%wheel|' /etc/sudoers
@@ -103,12 +114,12 @@ sed -i 's|# %wheel|%wheel|' /etc/sudoers
 # echo -e "\n${GRN}Generate GRUB menu...${NC}\n"
 # -----------------------------------------------------------------
 
-# Limine bootloader - BIOS
-echo -e "\n${GRN}Limine bootloader - BIOS...${NC}\n"
+# Limine bootloader 
+echo -e "\n${GRN}Limine bootloader ...${NC}\n"
 
-mkdir /boot/limine
-cp /usr/share/limine/limine-bios.sys /boot/limine
-limine bios-install $DISK
+mkdir /efi/limine
+#cp /usr/share/limine/limine-bios.sys /boot/limine
+#limine bios-install $DISK
 echo -e '
 TIMEOUT=3
 VERBOSE=yes
@@ -123,13 +134,18 @@ TERM_WALLPAPER=boot:///arch.jpg
    CMDLINE=root=ZFS=rpool/archlinux rw  loglevel=3 zfs_import_dir=/dev/
    MODULE_PATH=boot:///intel-ucode.img
    MODULE_PATH=boot:///initramfs-linux.img
-      ' > /boot/limine/limine.cfg
+      ' > /efi/limine/limine.cfg
 
-# Limine bootloader - EFI
-echo -e "\n${GRN}Limine bootloader - EFI...${NC}\n"
+mkdir -p /efi/EFI
+cp /usr/share/limine/BOOTX64.EFI /efi/EFI
 
-mkdir -p /boot/efi/EFI
-cp /usr/share/limine/BOOTX64.EFI /boot/efi/EFI
+# ZFSBootMenu bootloader 
+echo -e "\n${GRN}ZFSBootMenu bootloader  bootloader ...${NC}\n"
+
+mkdir -p /efi/EFI/zbm
+wget https://get.zfsbootmenu.org/latest.EFI -O /efi/EFI/zbm/zfsbootmenu.EFI
+efibootmgr --disk $DISK --part 1 --create --label "ZFSBootMenu" --loader '\EFI\zbm\zfsbootmenu.EFI' --unicode "spl_hostid=$(hostid) zbm.timeout=3 zbm.prefer=zroot zbm.import_policy=hostid"
+zfs set org.zfsbootmenu:commandline="noresume init_on_alloc=0 rw spl.spl_hostid=$(hostid)" zroot/ROOT
 
 # Adding user 
 echo -e "\n${GRN}Adding user mk...${NC}\n"
@@ -142,15 +158,9 @@ passwd mk
 echo -e "\n${ORG}Changing password for root:${NC}\n"
 passwd root
 
-# Install yay
-echo -e "\n${GRN}Install yay...${NC}\n"
+# # Install yay
+# echo -e "\n${GRN}Install yay...${NC}\n"
 
-su mk
-cd
-mkdir repo
-cd repo
-sudo pacman -Syy
-git clone https://aur.archlinux.org/yay.git
-cd yay
-makepkg -si
+# su mk
+# cd & mkdir repo & cd repo & pacman -Syy & git clone https://aur.archlinux.org/yay.git & cd yay & makepkg -si
 
