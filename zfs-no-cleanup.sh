@@ -94,8 +94,8 @@ modprobe zfs
 #        printf '%s ' "${i}-part3";
 #       done)
 
-# create rpool      
-echo -e "\n${GRN}Create rpool...${NC}\n"
+# Create zroot     
+echo -e "\n${GRN}Create zroot...${NC}\n"
 
 zpool create \
     -f \
@@ -115,6 +115,7 @@ zpool create \
 # Create system and user datasets
 echo -e "\n${GRN}Create system and user datasets...${NC}\n"
 
+zfs create -o mountpoint=none zroot/ROOT
 zfs create -o canmount=noauto -o mountpoint=/ zroot/ROOT/arch     
 # zfs create -o canmount=noauto -o mountpoint=/  rpool/archlinux/root
 zfs mount zroot/ROOT/archlinux
