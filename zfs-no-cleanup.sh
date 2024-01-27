@@ -48,7 +48,7 @@ echo -e "\n${GRN}Create partitions...${NC}\n"
 # sgdisk -n 1:0:+2M -t 1:EF02 $DISK
 sgdisk -n 1:0:+2048M -t 1:EF00 $DISK
 sgdisk -n 2:0:+${SWAPSIZE}G -t 2:8200 $DISK
-sgdisk -n 3:0:900G -t 3:BF00 $DISK
+sgdisk -n 3:0:0 -t 3:BF00 $DISK
 
 # Swap setup
 echo -e "\n${GRN}Swap setup...${NC}\n"
