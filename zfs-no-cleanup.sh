@@ -24,10 +24,10 @@ BRED='\033[1;31m'
 # Setting variables
 echo -e "\n${GRN}Set variables...${NC}\n"
 
-DISK='/dev/sdb'
-DISKEFI='/dev/sdb1'
-DISKSWAP='/dev/sdb2'
-DISKROOT='/dev/sdb3'
+DISK='/dev/sda'
+DISKEFI='/dev/sda1'
+DISKSWAP='/dev/sda2'
+DISKROOT='/dev/sda3'
 MNT=/mnt
 SWAPSIZE=4
 ZFSPOOL='zroot'
