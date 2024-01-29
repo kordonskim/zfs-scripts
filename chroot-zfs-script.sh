@@ -8,8 +8,6 @@ echo -e "\n${GRN}Set hostname...${NC}\n"
 echo arch > /etc/hostname
 echo -e '127.0.0.1 localhost\n::1 localhost\n127.0.1.1 arch' >> /etc/hosts
 
-zgenhostid -f -o /etc/hostid
-
 # Generate locales:
 echo -e "\n${GRN}Set hostname...${NC}\n"
 
@@ -62,6 +60,11 @@ echo -e "\n${GRN}Setting ZFS cache and bootfs...${NC}\n"
 mkdir -p  /etc/zfs
 zpool set cachefile=/etc/zfs/zpool.cache zroot
 zpool set bootfs=zroot/ROOT/arch zroot
+
+# Generate hostid
+echo -e "\n${GRN}Generate hostid...${NC}\n"
+
+zgenhostid -f -o /etc/hostid
 
 # Install additional packages
 echo -e "\n${GRN}Install additional packages...${NC}\n"
@@ -139,7 +142,7 @@ TERM_WALLPAPER=boot:///arch.jpg
       ' > /efi/limine/limine.cfg
 
 cp /usr/share/limine/BOOTX64.EFI /efi/EFI/limine/
- efibootmgr --create --disk $DISK --part 1 --loader '\EFI\limine\BOOTX64.EFI' --label 'Limine' --unicode
+efibootmgr --create --disk $DISK --part 1 --loader '\EFI\limine\BOOTX64.EFI' --label 'Limine' --unicode
 
 # ZFSBootMenu bootloader 
 echo -e "\n${GRN}ZFSBootMenu bootloader  bootloader ...${NC}\n"

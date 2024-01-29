@@ -24,12 +24,12 @@ BRED='\033[1;31m'
 # Setting variables
 echo -e "\n${GRN}Set variables...${NC}\n"
 
-DISK='/dev/sda'
-DISKEFI='/dev/sda1'
-DISKSWAP='/dev/sda2'
-DISKROOT='/dev/sda3'
+DISK='/dev/sdb'
+DISKEFI='/dev/sdb1'
+DISKSWAP='/dev/sdb2'
+DISKROOT='/dev/sdb3'
 MNT=/mnt
-SWAPSIZE=8
+SWAPSIZE=4
 
 echo -e "Disk: $DISK, Mnt: $MNT, Swap: $SWAPSIZE"
 
@@ -37,18 +37,13 @@ echo -e "\n${GRN}Wiping disk {$DISK}...${NC}\n"
 wipefs -a -f $DISK
 sgdisk --zap-all $DISK
 
-# Generate hostid
-echo -e "\n${GRN}Generate hostid...${NC}\n"
-
-zgenhostid -f -o /etc/hostid
-
 # Create partitions
 echo -e "\n${GRN}Create partitions...${NC}\n"
 
 # sgdisk -n 1:0:+2M -t 1:EF02 $DISK
-sgdisk -n 1:1M:+2048M -t 1:EF00 $DISK
-sgdisk -n 2:0:+${SWAPSIZE}G -t 2:8200 $DISK
-sgdisk -n 3:0:0 -t 3:BF00 $DISK
+sgdisk -n1:1M:+2048M -t1:EF00 $DISK
+sgdisk -n2:0:+${SWAPSIZE}G -t2:8200 $DISK
+sgdisk -n3:0:0 -t3:BF00 $DISK
 
 # Swap setup
 echo -e "\n${GRN}Swap setup...${NC}\n"
@@ -134,7 +129,7 @@ zfs list
 # Format and mount ESP
 echo -e "\n${GRN}Format and mount ESP...${NC}\n"
 
-mkfs.vfat -v -F 32 -n "EFI" $DISKEFI
+mkfs.vfat -F 32 $DISKEFI
 
 mkdir -p "${MNT}"/efi
 mount $DISKEFI ${MNT}/efi
