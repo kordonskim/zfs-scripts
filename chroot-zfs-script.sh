@@ -75,6 +75,8 @@ pacman -S --noconfirm intel-ucode amd-ucode nano limine micro mc wget ansible gi
 echo -e "\n${GRN}Enable services...${NC}\n"
 
 echo -e "[Match]\nName=eno*\n\n[Network]\nDHCP=yes" > /etc/systemd/network/en.network
+chown root:systemd-network /etc/systemd/network/en.network
+
 #echo -e "\nnameserver 1.1.1.1\nnameserver 9.9.9.9" >> /etc/resolv.conf
 sed -i 's|#PasswordAuthentication|PasswordAuthentication|' /etc/ssh/sshd_config
 
