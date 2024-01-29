@@ -167,5 +167,8 @@ passwd root
 # echo -e "\n${GRN}Install yay...${NC}\n"
 
 # su mk
-# cd & mkdir repo & cd repo & pacman -Syy & git clone https://aur.archlinux.org/yay.git & cd yay & makepkg -si
+# cd /home/mk && mkdir repo && cd repo && git clone https://aur.archlinux.org/yay.git && cd yay && makepkg -si
+
+# HyprV4
+# git clone https://github.com/SolDoesTech/HyprV4 
 
