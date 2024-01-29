@@ -30,6 +30,7 @@ DISKSWAP='/dev/sdb2'
 DISKROOT='/dev/sdb3'
 MNT=/mnt
 SWAPSIZE=4
+ZFSPOOL='zroot'
 
 echo -e "Disk: $DISK, Mnt: $MNT, Swap: $SWAPSIZE"
 
@@ -158,7 +159,7 @@ cat "${MNT}"/etc/fstab
 # Copy local files to /mnt
 echo -e "\n${GRN}Copy local files to ${MNT}...${NC}\n"
 
-cp /etc/hostid "${MNT}"/etc
+# cp /etc/hostid "${MNT}"/etc
 cp /etc/resolv.conf "${MNT}"/etc/resolv.conf
 cp /etc/pacman.conf "${MNT}"/etc/pacman.conf
 
