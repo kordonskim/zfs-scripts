@@ -30,7 +30,7 @@ DISKSWAP='/dev/sda2'
 DISKROOT='/dev/sda3'
 MNT=/mnt
 SWAPSIZE=4
-ZFSPOOL='zroot'
+#ZFSPOOL='zroot'
 
 echo -e "Disk: $DISK, Mnt: $MNT, Swap: $SWAPSIZE"
 
@@ -42,9 +42,9 @@ sgdisk --zap-all $DISK
 echo -e "\n${GRN}Create partitions...${NC}\n"
 
 # sgdisk -n 1:0:+2M -t 1:EF02 $DISK
-sgdisk -n1:1M:+2048M -t1:EF00 $DISK
-sgdisk -n2:0:+${SWAPSIZE}G -t2:8200 $DISK
-sgdisk -n3:0:0 -t3:BF00 $DISK
+sgdisk -n 1:1M:+2048M -t 1:EF00 $DISK
+sgdisk -n 2:0:+${SWAPSIZE}G -t 2:8200 $DISK
+sgdisk -n 3:0:0 -t 3:BF00 $DISK
 
 # Swap setup
 echo -e "\n${GRN}Swap setup...${NC}\n"

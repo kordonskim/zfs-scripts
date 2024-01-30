@@ -123,8 +123,7 @@ sed -i 's|# %wheel|%wheel|' /etc/sudoers
 # Limine bootloader 
 echo -e "\n${GRN}Limine bootloader ...${NC}\n"
 
-mkdir -p /efi/EFI/limine
-mkdir /efi/limine
+mkdir -p /efi/EFI/BOOT
 #cp /usr/share/limine/limine-bios.sys /boot/limine
 #limine bios-install $DISK
 echo -e '
@@ -133,18 +132,32 @@ VERBOSE=yes
 DEFAULT_ENTRY=1
 GRAPHICS=yes
 RESOLUTION=800x600
-TERM_WALLPAPER=boot:///arch.jpg
+TERM_WALLPAPER=boot:///EFI/BOOT/arch.jpeg
 
 :Arch Linux
-   PROTOCOL=limine
-   KERNEL_PATH=boot:///vmlinuz-linux
-   CMDLINE=root=ZFS=rpool/archlinux rw  loglevel=3 zfs_import_dir=/dev/
-   MODULE_PATH=boot:///intel-ucode.img
-   MODULE_PATH=boot:///initramfs-linux.img
-      ' > /efi/limine/limine.cfg
+    PROTOCOL=efi_chainload
+    IMAGE_PATH=boot:///EFI/Linux/arch-linux.efi
 
-cp /usr/share/limine/BOOTX64.EFI /efi/EFI/limine/
-efibootmgr --create --disk $DISK --part 1 --loader '\EFI\limine\BOOTX64.EFI' --label 'Limine' --unicode
+:ZFSBootMenu
+    PROTOCOL=efi_chainload
+    IMAGE_PATH=boot:///EFI/zbm/zfsbootmenu.EFI
+
+:Windows 11
+    PROTOCOL=efi_chainload
+    IMAGE_PATH=boot:///EFI/Microsoft/Boot/bootmgfw.efi
+    #IMAGE_PATH=guid://1eac5b9f-1a50-4bf5-8b02-9449c1dd085b/EFI/Microsoft/Boot/bootmgfw.efi
+    #IMAGE_PATH=hdd://2:1/EFI/
+
+#:Arch Linux
+#       PROTOCOL=linux
+#       KERNEL_PATH=boot:///vmlinuz-linux
+#       CMDLINE=root=ZFS=zpool/ROOT/arch rw  loglevel=3 zfs_import_dir=/dev/
+#       MODULE_PATH=boot:///intel-ucode.img
+#       MODULE_PATH=boot:///initramfs-linux.img
+      ' > /efi/EFI/BOOT/limine.cfg
+
+cp /usr/share/limine/BOOTX64.EFI /efi/EFI/BOOT/
+efibootmgr --create --disk $DISK --part 1 --loader '\EFI\BOOT\BOOTX64.EFI' --label 'Limine' --unicode
 
 # ZFSBootMenu bootloader 
 echo -e "\n${GRN}ZFSBootMenu bootloader  bootloader ...${NC}\n"
