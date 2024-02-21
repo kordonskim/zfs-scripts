@@ -52,14 +52,16 @@ pacman -S --noconfirm zfs-linux zfs-utils
 echo -e "\n${GRN}Configure mkinitcpio...${NC}\n"
 
 sed -i 's|filesystems|zfs filesystems|' /etc/mkinitcpio.conf
+sed -i 's|#default_uki="/efi/EFI/Linux/arch-linux.efi"|default_uki="/efi/EFI/Linux/arch-linux.efi"|' /etc/mkinitcpio.d/linux.preset
+mkdir -p /efi/EFI/Linux
 mkinitcpio -P
 
 # Setting ZFS cache
 echo -e "\n${GRN}Setting ZFS cache and bootfs...${NC}\n"
 
 mkdir -p  /etc/zfs
-zpool set cachefile=/etc/zfs/zpool.cache zroot
-zpool set bootfs=zroot/ROOT/arch zroot
+zpool set cachefile=/etc/zfs/zpool.cache $ZFSPOOL
+zpool set bootfs=${ZFSPOOL}/ROOT/arch $ZFSPOOL
 
 # Generate hostid
 echo -e "\n${GRN}Generate hostid...${NC}\n"
@@ -74,7 +76,7 @@ pacman -S --noconfirm intel-ucode amd-ucode nano limine micro mc wget ansible gi
 # Enable services
 echo -e "\n${GRN}Enable services...${NC}\n"
 
-echo -e "[Match]\nName=eno*\n\n[Network]\nDHCP=yes" > /etc/systemd/network/en.network
+echo -e "[Match]\nName=en*\n\n[Network]\nDHCP=yes" > /etc/systemd/network/en.network
 chown root:systemd-network /etc/systemd/network/en.network
 
 #echo -e "\nnameserver 1.1.1.1\nnameserver 9.9.9.9" >> /etc/resolv.conf
@@ -164,8 +166,8 @@ echo -e "\n${GRN}ZFSBootMenu bootloader  bootloader ...${NC}\n"
 
 mkdir -p /efi/EFI/zbm
 wget https://get.zfsbootmenu.org/latest.EFI -O /efi/EFI/zbm/zfsbootmenu.EFI
-efibootmgr --disk $DISK --part 1 --create --label "ZFSBootMenu" --loader '\EFI\zbm\zfsbootmenu.EFI' --unicode "spl_hostid=$(hostid) zbm.timeout=3 zbm.prefer=zroot zbm.import_policy=hostid"
-zfs set org.zfsbootmenu:commandline="noresume init_on_alloc=0 rw spl.spl_hostid=$(hostid)" zroot/ROOT
+efibootmgr --disk $DISK --part 1 --create --label "ZFSBootMenu" --loader '\EFI\zbm\zfsbootmenu.EFI' --unicode "spl_hostid=$(hostid) zbm.timeout=3 zbm.prefer=$ZFSPOOL zbm.import_policy=hostid"
+zfs set org.zfsbootmenu:commandline="noresume init_on_alloc=0 rw spl.spl_hostid=$(hostid)" ${ZFSPOOL}/ROOT
 
 # Adding user 
 echo -e "\n${GRN}Adding user mk...${NC}\n"

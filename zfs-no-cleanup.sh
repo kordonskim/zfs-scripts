@@ -1,5 +1,14 @@
 #!/bin/bash
-set -e
+#set -e # stop scripts on any error
+set -u # for erors with variables
+#set -x # debug 
+
+handle_error() {
+    echo "An error occurred on line $1"
+    exit 1
+}
+
+trap 'handle_error $LINENO' ERR
 
 # find /dev/disk/by-id/
 # mount -o remount,size=1G /run/archiso/cowspace    
@@ -7,6 +16,7 @@ set -e
 # git clone https://github.com/kordonskim/zfs-scripts
 
 GRN='\033[0;32m'
+ORG='\033[0;33m'
 NC='\033[0m'
 BBLU='\033[1;34m'
 BRED='\033[1;31m'
@@ -24,13 +34,31 @@ BRED='\033[1;31m'
 # Setting variables
 echo -e "\n${GRN}Set variables...${NC}\n"
 
-DISK='/dev/sda'
-DISKEFI='/dev/sda1'
-DISKSWAP='/dev/sda2'
-DISKROOT='/dev/sda3'
+
+
+DISK=/dev/sda
+DISKEFI="${DISK}1"
+DISKSWAP="${DISK}2"
+DISKROOT="${DISK}3"
 MNT=/mnt
 SWAPSIZE=4
-#ZFSPOOL='zroot'
+ZFSPOOL=zroot
+
+echo -e "DISK=${ORG}$DISK${NC}"
+echo -e "DISKEFI=${ORG}$DISKEFI${NC}"
+echo -e "DISKSWAP=${ORG}$DISKSWAP${NC}"
+echo -e "DISKROOT=${ORG}$DISKROOT${NC}"
+echo -e "MNT=${ORG}$MNT${NC}"
+echo -e "SWAPSIZE=${ORG}$SWAPSIZE${NC}"
+echo -e "ZFSPOOL=${ORG}$ZFSPOOL${NC}"
+echo
+
+read -p "Would you like to continue (yY)? " -n 1 -r
+echo    # (optional) move to a new line
+if [[ ! $REPLY =~ ^[Yy]$ ]]
+then
+    [[ "$0" = "$BASH_SOURCE" ]]&& echo "Exiting the script per user request."  && exit 1 || return 1 # handle exits from shell or function but don't exit interactive shell
+fi
 
 echo -e "Disk: $DISK, Mnt: $MNT, Swap: $SWAPSIZE"
 
@@ -91,7 +119,7 @@ modprobe zfs
 #       done)
 
 # Create zroot     
-echo -e "\n${GRN}Create zroot...${NC}\n"
+echo -e "\n${GRN}Create $ZFSPOOL...${NC}\n"
 
 zpool create \
     -f \
@@ -106,21 +134,21 @@ zpool create \
     -O relatime=on \
     -O xattr=sa \
     -O mountpoint=/ \
-    zroot $DISKROOT
+    $ZFSPOOL $DISKROOT
 
 # Create system and user datasets
 echo -e "\n${GRN}Create system and user datasets...${NC}\n"
 
-zfs create -o mountpoint=none zroot/ROOT
-zfs create -o canmount=noauto -o mountpoint=/ zroot/ROOT/arch
-zfs create -o mountpoint=/home zroot/home
+zfs create -o mountpoint=none ${ZFSPOOL}/ROOT
+zfs create -o canmount=noauto -o mountpoint=/ ${ZFSPOOL}/ROOT/arch
+zfs create -o mountpoint=/home ${ZFSPOOL}/home
 # zfs create -o canmount=noauto -o mountpoint=/  rpool/archlinux/root
 
-zpool export zroot
-zpool import -N -R /mnt zroot
+zpool export ${ZFSPOOL}
+zpool import -N -R /mnt ${ZFSPOOL}
 # zfs load-key -L prompt zroot # Enter your pool passphrase after that command
-zfs mount zroot/ROOT/arch
-zfs mount zroot/home
+zfs mount ${ZFSPOOL}/ROOT/arch
+zfs mount ${ZFSPOOL}/home
 
 # zfs create -o mountpoint=none bpool/archlinux
 # zfs create -o mountpoint=/boot bpool/archlinux/root
@@ -132,7 +160,7 @@ echo -e "\n${GRN}Format and mount ESP...${NC}\n"
 
 mkfs.vfat -F 32 $DISKEFI
 
-mkdir -p "${MNT}"/efi
+mkdir -p ${MNT}/efi
 mount $DISKEFI ${MNT}/efi
 
 # Pacstrap packages to MNT
@@ -147,14 +175,13 @@ echo -e "\n${GRN}Generate fstab...${NC}\n"
 genfstab -U -p "${MNT}" >> "${MNT}"/etc/fstab
 
 # remove rpool and bpool mounts form fstab
-sed -i '/zroot/d' "${MNT}"/etc/fstab
+sed -i "/${ZFSPOOL}/d" ${MNT}/etc/fstab
     # sed -i '/bpool/d' "${MNT}"/etc/fstab
 
 # remove first empty lines from fstab
-sed -i '/./,$!d' "${MNT}"/etc/fstab
+sed -i '/./,$!d' ${MNT}/etc/fstab
 
 cat "${MNT}"/etc/fstab
-
 
 # Copy local files to /mnt
 echo -e "\n${GRN}Copy local files to ${MNT}...${NC}\n"
@@ -171,7 +198,7 @@ cp ./chroot-zfs-script.sh /mnt/root
 # Run chroot-zfs-script
 echo -e "\n${BBLU}Run chroot-zfs-script...${NC}\n"
 
-arch-chroot "${MNT}" /usr/bin/env DISK="${DISK}" sh /root/chroot-zfs-script.sh
+arch-chroot "${MNT}" /usr/bin/env DISK="${DISK} ZFSPOOL=${ZFSPOOL}" sh /root/chroot-zfs-script.sh
 
 # Cleanup
 echo -e "\n${GRN}Cleanup...${NC}\n"
