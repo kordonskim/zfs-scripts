@@ -198,7 +198,7 @@ cp ./chroot-zfs-script.sh /mnt/root
 # Run chroot-zfs-script
 echo -e "\n${BBLU}Run chroot-zfs-script...${NC}\n"
 
-arch-chroot "${MNT}" /usr/bin/env DISK="${DISK} ZFSPOOL=${ZFSPOOL}" sh /root/chroot-zfs-script.sh
+arch-chroot "${MNT}" /usr/bin/env DISK="${DISK}" ZFSPOOL="${ZFSPOOL}" sh /root/chroot-zfs-script.sh
 
 # Cleanup
 echo -e "\n${GRN}Cleanup...${NC}\n"
