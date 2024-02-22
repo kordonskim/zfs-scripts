@@ -36,10 +36,10 @@ echo -e "\n${GRN}Set variables...${NC}\n"
 
 
 
-DISK=/dev/sda
-DISKEFI="${DISK}1"
-DISKSWAP="${DISK}2"
-DISKROOT="${DISK}3"
+DISK=/dev/nvme0n1
+DISKEFI="${DISK}p1"
+DISKSWAP="${DISK}p2"
+DISKROOT="${DISK}p3"
 MNT=/mnt
 SWAPSIZE=4
 ZFSPOOL=zroot
